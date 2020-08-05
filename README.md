@@ -1,2 +1,2 @@
 # Aura
-A 2D rendering tool made with OpenGL, GLEW, and C++. Documentation still in the works.
+A 2D rendering tool made with OpenGL, GLFW, GLEW, and C++. Documentation still in the works.
