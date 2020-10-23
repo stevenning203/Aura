@@ -14,7 +14,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "gladsource.h"
+#include "glad.c"
 
 #include <string>
 #include <fstream>
@@ -25,9 +25,10 @@
 #include <stdlib.h>
 #include <unordered_map>
 #include <stdio.h>
+#include <Windows.h>
+#include <shellapi.h>
 
 typedef glm::vec3 glv3;
-typedef bool label;
 
 namespace gloom
 {
@@ -41,26 +42,26 @@ namespace gloom
 	private:
 		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 trg = glm::vec3(0.f, 0.f, 0.f);
-		glm::mat4 ViewMatrix = glm::mat4(1.0f);
+		glm::mat4 view_matrix = glm::mat4(1.0f);
 		Gloonum mode = Gloonum::GLO_CAMERA_MODE_FREECAM;
 	public:
-		void setPos(glm::vec3 pos)
+		void SetPos(glm::vec3 pos)
 		{
 			this->pos = pos;
-			this->ViewMatrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
+			this->view_matrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
 		}
-		void setTrg(glm::vec3 target)
+		void SetTrg(glm::vec3 target)
 		{
 			this->trg = target;
-			this->ViewMatrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
+			this->view_matrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
 		}
-		void setMode(Gloonum mode)
+		void SetMode(Gloonum mode)
 		{
 			this->mode = mode;
 		}
-		glm::mat4 getMatrix()
+		glm::mat4 GetMatrix()
 		{
-			return ViewMatrix;
+			return view_matrix;
 		}
 	};
 
@@ -68,27 +69,27 @@ namespace gloom
 	{
 		glm::mat4 internal = glm::mat4(1.0f);
 	public:
-		void set(glm::mat4 matrix)
+		void Set(glm::mat4 matrix)
 		{
 			this->internal = matrix;
 		}
-		void reset()
+		void Reset()
 		{
 			this->internal = glm::mat4(1.f);
 		}
-		void xyz(glm::vec3 offset)
+		void XYZ(glm::vec3 offset)
 		{
 			this->internal = glm::translate(this->internal, offset);
 		}
-		void rotation(float degrees, glm::vec3 axes)
+		void Rotation(float degrees, glm::vec3 axes)
 		{
 			this->internal = glm::rotate(this->internal, glm::radians(degrees), axes);
 		}
-		void scale(glm::vec3 axes)
+		void Scale(glm::vec3 axes)
 		{
 			this->internal = glm::scale(this->internal, axes);
 		}
-		glm::mat4 get()
+		glm::mat4 Get()
 		{
 			return this->internal;
 		}
@@ -98,11 +99,11 @@ namespace gloom
 	{
 		glm::mat4 internal = glm::mat4(1.0f);
 	public:
-		void set(glm::mat4 matrix)
+		void Set(glm::mat4 matrix)
 		{
 			this->internal = matrix;
 		}
-		glm::mat4 get()
+		glm::mat4 Get()
 		{
 			return this->internal;
 		}
@@ -116,25 +117,25 @@ namespace gloom
 
 	struct Sprite2D
 	{
-		unsigned int ID = 0;
-		unsigned int tID = 0;
+		unsigned int id = 0;
+		unsigned int tid = 0;
 		float r = 0.f, g = 0.f, b = 0.f;
 		float width = 0, height = 0;
 		float angle = 0;
 		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
 		glm::vec2 pos = glm::vec2(0.f, 0.f);
-		glm::vec2 pointOfRot = glm::vec2(0, 0);
-		Sprite2D(unsigned int bufferID, glm::vec3 rgb, float width, float height, unsigned int textureID = NULL)
+		glm::vec2 point_of_rotation = glm::vec2(0, 0);
+		Sprite2D(unsigned int buffer_id, glm::vec3 rgb, float width, float height, unsigned int texture_id = NULL)
 		{
-			this->ID = bufferID;
-			this->tID = textureID;
+			this->id = buffer_id;
+			this->tid = texture_id;
 			this->r = rgb[0];
 			this->g = rgb[1];
 			this->b = rgb[2];
 			this->width = width;
 			this->height = height;
 		}
-		glm::vec2 getCenter()
+		glm::vec2 GetCenter()
 		{
 			return glm::vec2(scale[0] * width / 2, scale[1] * height / 2);
 		}
@@ -162,27 +163,29 @@ namespace gloom
 		std::vector<Texture>      textures;
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void draw(ModMat mod);
+		void Draw(ModMat mod);
 	private:
 		unsigned int VAO, VBO, EBO;
-		void setupMesh();
+		void SetupMesh();
 	};
 
 	class Model
 	{
 	public:
+		ModMat matrix;
 		Model(const char* path)
 		{
-			loadModel(path);
+			LoadModel(path);
 		}
-		void draw(ModMat mod);
+		void Draw(ModMat mod);
+		void Draw();
 	private:
 		std::vector<Mesh> meshes;
 		std::string dir;
-		void loadModel(std::string path);
-		void processNode(aiNode* node, const aiScene* scene);
-		Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+		void LoadModel(std::string path);
+		void ProcessNode(aiNode* node, const aiScene* scene);
+		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 	};
 
 	class Window
@@ -192,147 +195,158 @@ namespace gloom
 		int height = 0;
 	};
 
-	Camera* currentCamera;
+	bool force_exit = false;
+
+	unsigned int shader;
+
+	Camera* current_camera;
 
 	Window window;
 
-	int mouseX, mouseY;
+	int mouse_x, mouse_y;
 
-	GLFWwindow* localWindow;
+	GLFWwindow* local_window;
 
-	ProjMat perspectiveM, orthographicM;
+	ProjMat perspective_matrix, orthographic_matrix;
 
 	ModMat translationM, rotationM, scalingM;
 
 	UniformLoc boolTextUL, vecRGBUL, matOrthoUL, matModelUL, boolDIMUL, matMVPUL;
 
-	void setCurrentCamera(Camera* camera_set);
+	void SetCurrentCamera(Camera* camera_set);
 
-	void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 
-	glm::vec2 getMousePos();
+	glm::vec2 GetMousePos();
 
-	auto split(std::string str, char split, bool fc = true);
+	auto Split(std::string str, char split, bool fc = true);
 
-	auto split_string(std::string str, char split);
+	auto SplitString(std::string str, char split);
 
-	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+	void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
-	void parseShader(std::string path, std::string* ptrToVertexShaderSrc, std::string* ptrToFragmentShaderSrc);
+	void ParseShader(std::string path, std::string* ptrToVertexShaderSrc, std::string* ptrToFragmentShaderSrc);
 
-	unsigned int shaderInit(const char* path);
+	unsigned int ShaderInit(const char* path);
 
-	void init(int windowWidth, int windowHeight, const char* windowName, bool fullScreen = NULL);
+	void Init(int window_width, int window_height, const char* window_name, bool fullscreen = NULL);
 
-	void setFOV(float deg);
+	void SetFieldOfView(float deg);
 
-	void poll();
+	void Poll();
 
-	void flipDisplay();
+	void FlipDisplay();
 
-	bool queueExit();
+	bool QueueExit();
 
-	bool getKey(unsigned int glKeycode);
+	bool GetKey(unsigned int glKeycode);
 
-	void setClearColor(float x, float y, float z, float a = 1.0f);
+	void SetClearColor(float x, float y, float z, float a = 1.0f);
 
-	void setMouseMode(Gloonum mouseMode);
+	void SetMouseMode(Gloonum mouse_mode);
 
-	void setMousePos(int x, int y);
+	void SetMousePos(int x, int y);
 
-	void terminate();
+	void Terminate();
 
-	void forceLowInput();
+	void ForceLowInput();
 
-	void clearBuffer();
+	void ClearBuffer();
 
-	double getTime();
+	double GetTime();
 
-	void poll();
+	void Poll();
 
-	void ImguiBegin();
+	void ForceExit();
 
-	void ImguiEnd();
-
-	void ImguiMessage(const char* message);
-
-	void LoadFont(const char* path_to_ttf);
+	Camera * GetCurrentCamera();
 }
 
-void gloom::poll()
+void gloom::Poll()
 {
 	glfwPollEvents();
 }
 
-double gloom::getTime()
+double gloom::GetTime()
 {
 	return glfwGetTime();
 }
 
-void gloom::clearBuffer()
+void gloom::ClearBuffer()
 {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void gloom::forceLowInput()
+void gloom::ForceLowInput()
 {
 	glFinish();
 }
 
-void gloom::terminate()
+void gloom::Terminate()
 {
 	glfwTerminate();
 }
 
-void gloom::setMousePos(int x, int y)
+void gloom::SetMousePos(int x, int y)
 {
-	glfwSetCursorPos(localWindow, x, y);
+	glfwSetCursorPos(local_window, x, y);
 }
 
-void gloom::setMouseMode(Gloonum mouseMode)
+void gloom::SetMouseMode(Gloonum mouse_mode)
 {
-	if (mouseMode == gloom::Gloonum::GLO_MOUSE_MODE_HIDE)
+	if (mouse_mode == gloom::Gloonum::GLO_MOUSE_MODE_HIDE)
 	{
-		glfwSetInputMode(localWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	}
-	else if (mouseMode == gloom::Gloonum::GLO_MOUSE_MODE_SHOW)
+	else if (mouse_mode == gloom::Gloonum::GLO_MOUSE_MODE_SHOW)
 	{
-		glfwSetInputMode(localWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 }
 
-void gloom::setClearColor(float x, float y, float z, float a)
+void gloom::SetClearColor(float x, float y, float z, float a)
 {
 	glClearColor(x, y, z, a);
 }
 
-bool gloom::getKey(unsigned int glKeycode)
+bool gloom::GetKey(unsigned int glKeycode)
 {
-	return glfwGetKey(localWindow, glKeycode);
+	return glfwGetKey(local_window, glKeycode);
 }
 
-bool gloom::queueExit()
+bool gloom::QueueExit()
 {
-	return glfwWindowShouldClose(localWindow);
+	return glfwWindowShouldClose(local_window);
 }
 
-void gloom::flipDisplay()
+void gloom::FlipDisplay()
 {
-	glfwSwapBuffers(localWindow);
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	glfwSwapBuffers(local_window);
 }
 
-glm::vec2 gloom::getMousePos()
+glm::vec2 gloom::GetMousePos()
 {
-	return glm::vec2(mouseX, mouseY);
+	return glm::vec2(mouse_x, mouse_y);
 }
 
-void gloom::Model::draw(ModMat mod)
+void gloom::Model::Draw(ModMat mod)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].draw(mod);
+		meshes[i].Draw(mod);
 }
 
-void gloom::Model::loadModel(std::string path)
+void gloom::Model::Draw()
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+		meshes[i].Draw(this->matrix);
+}
+
+void gloom::Model::LoadModel(std::string path)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -343,10 +357,10 @@ void gloom::Model::loadModel(std::string path)
 		return;
 	}
 	dir = path.substr(0, path.find_last_of('/'));
-	processNode(scene->mRootNode, scene);
+	ProcessNode(scene->mRootNode, scene);
 }
 
-std::vector<gloom::Texture> gloom::Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<gloom::Texture> gloom::Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -362,21 +376,21 @@ std::vector<gloom::Texture> gloom::Model::loadMaterialTextures(aiMaterial* mat, 
 	return textures;
 }
 
-void gloom::Model::processNode(aiNode *node, const aiScene *scene)
+void gloom::Model::ProcessNode(aiNode *node, const aiScene *scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		meshes.push_back(ProcessMesh(mesh, scene));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene);
+		ProcessNode(node->mChildren[i], scene);
 	}
 }
 
-gloom::Mesh gloom::Model::processMesh(aiMesh *mesh, const aiScene * scene)
+gloom::Mesh gloom::Model::ProcessMesh(aiMesh *mesh, const aiScene * scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -417,9 +431,9 @@ gloom::Mesh gloom::Model::processMesh(aiMesh *mesh, const aiScene * scene)
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
@@ -432,10 +446,10 @@ gloom::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indice
 	this->indices = indices;
 	this->textures = textures;
 
-	setupMesh();
+	SetupMesh();
 }
 
-void gloom::Mesh::setupMesh()
+void gloom::Mesh::SetupMesh()
 {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -457,36 +471,38 @@ void gloom::Mesh::setupMesh()
 	glBindVertexArray(0);
 }
 
-void gloom::setCurrentCamera(gloom::Camera* camera_set)
+void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 {
-	currentCamera = camera_set;
+	current_camera = camera_set;
 }
 
-void gloom::Mesh::draw(ModMat mod)
+void gloom::Mesh::Draw(ModMat mod)
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
+		//glActiveTexture(GL_TEXTURE0 + i);
+		glActiveTexture(GL_TEXTURE1);
 		std::string number;
 		std::string name = textures[i].type;
 		if (name == "texture_diffuse")
 			number = std::to_string(diffuseNr++);
 		else if (name == "texture_specular")
 			number = std::to_string(specularNr++);
-		//glUniform1f();
+		//glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
+		glUniform1i(glGetUniformLocation(shader, "texture_diffuse1"), 1);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
-	glm::mat4 temp_mat = perspectiveM.get() * currentCamera->getMatrix() * mod.get();
+	glm::mat4 temp_mat = perspective_matrix.Get() * current_camera->GetMatrix() * mod.Get();
 	glUniformMatrix4fv(matMVPUL.val, 1, GL_FALSE, &temp_mat[0][0]);
-	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
-auto gloom::split(std::string str, char split, bool fc)
+auto gloom::Split(std::string str, char split, bool fc)
 {
 	std::vector<float> tv;
 	int current = 1;
@@ -509,7 +525,7 @@ auto gloom::split(std::string str, char split, bool fc)
 	return tv;
 }
 
-auto gloom::split_string(std::string str, char split)
+auto gloom::SplitString(std::string str, char split)
 {
 	std::vector<std::string> tv;
 	int current = 1;
@@ -530,24 +546,29 @@ auto gloom::split_string(std::string str, char split)
 	return tv;
 }
 
-void gloom::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+void gloom::CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	mouseX = (int)xpos;
-	mouseY = (int)ypos;
+	mouse_x = (int)xpos;
+	mouse_y = (int)ypos;
 }
 
-void gloom::framebufferSizeCallback(GLFWwindow* window, int width, int height)
+void gloom::ForceExit()
+{
+	gloom::force_exit = true;
+}
+
+void gloom::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-void gloom::parseShader(std::string path, std::string* ptrToVertexShaderSrc, std::string* ptrToFragmentShaderSrc)
+void gloom::ParseShader(std::string path, std::string* ptr_vs_src, std::string* ptr_fs_src)
 {
-	std::string* ptvss = ptrToVertexShaderSrc;
-	std::string* ptfss = ptrToFragmentShaderSrc;
+	std::string* ptvss = ptr_vs_src;
+	std::string* ptfss = ptr_fs_src;
 	std::string line;
 	std::ifstream stream;
-	std::stringstream stringStream[2];
+	std::stringstream string_stream[2];
 	int vOF = 0;
 	stream.open(path);
 	while (getline(stream, line))
@@ -565,19 +586,19 @@ void gloom::parseShader(std::string path, std::string* ptrToVertexShaderSrc, std
 		}
 		else
 		{
-			stringStream[vOF] << line << '\n';
+			string_stream[vOF] << line << '\n';
 		}
 	}
-	*ptvss = stringStream[0].str();
-	*ptfss = stringStream[1].str();
+	*ptvss = string_stream[0].str();
+	*ptfss = string_stream[1].str();
 }
 
-unsigned int gloom::shaderInit(const char* path) {
+unsigned int gloom::ShaderInit(const char* path) {
 	unsigned int vSID = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fSID = glCreateShader(GL_FRAGMENT_SHADER);
 	std::string vSSrc;
 	std::string fSSrc;
-	parseShader(path, &vSSrc, &fSSrc);
+	ParseShader(path, &vSSrc, &fSSrc);
 	GLint success = GL_FALSE;
 	int InfoLogLength;
 	char const* VertexSourcePointer = vSSrc.c_str();
@@ -621,26 +642,26 @@ unsigned int gloom::shaderInit(const char* path) {
 	return ProgramID;
 }
 
-void gloom::init(int windowWidth, int windowHeight, const char* windowName, bool fullScreen)
+void gloom::Init(int window_width, int window_height, const char* window_name, bool fullscreen)
 {
 	std::srand((unsigned)time(0));
-	int width = windowWidth;
-	int height = windowHeight;
-	window.width = windowWidth;
-	window.height = windowHeight;
+	int width = window_width;
+	int height = window_height;
+	window.width = window_width;
+	window.height = window_height;
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	if (fullScreen == true)
-		localWindow = glfwCreateWindow(width, height, windowName, glfwGetPrimaryMonitor(), NULL);
+	if (fullscreen == true)
+		local_window = glfwCreateWindow(width, height, window_name, glfwGetPrimaryMonitor(), NULL);
 	else
-		localWindow = glfwCreateWindow(width, height, windowName, NULL, NULL);
-	perspectiveM.set(glm::perspective(glm::radians(90.0f), (float)width / (float)height, 0.1f, 100.0f));
-	orthographicM.set(glm::ortho(0.f, (float)width, (float)height, 0.f, -1.f, 1.f));
-	glfwMakeContextCurrent(localWindow);
-	if (!localWindow)
+		local_window = glfwCreateWindow(width, height, window_name, NULL, NULL);
+	perspective_matrix.Set(glm::perspective(glm::radians(90.0f), (float)width / (float)height, 0.1f, 100.0f));
+	orthographic_matrix.Set(glm::ortho(0.f, (float)width, (float)height, 0.f, -1.f, 1.f));
+	glfwMakeContextCurrent(local_window);
+	if (!local_window)
 	{
 		std::cout << "Failed to init GLFW window" << std::endl;
 		glfwTerminate();
@@ -653,46 +674,34 @@ void gloom::init(int windowWidth, int windowHeight, const char* windowName, bool
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
+	ImFont* google_sans = io.Fonts->AddFontFromFileTTF("res/fonts/google_sans.ttf", 18.f);
 	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(localWindow, true);
+	ImGui_ImplGlfw_InitForOpenGL(local_window, true);
 	ImGui_ImplOpenGL3_Init("#version 430 core");
 	glViewport(0, 0, width, height);
-	glfwSetFramebufferSizeCallback(localWindow, framebufferSizeCallback);
-	unsigned int shaderProgram = shaderInit("res/shaders/basic.shader");
-	matMVPUL.val = glGetUniformLocation(shaderProgram, "mvp");
-	boolTextUL.val = glGetUniformLocation(shaderProgram, "textureExists");
-	vecRGBUL.val = glGetUniformLocation(shaderProgram, "objColor");
-	matModelUL.val = glGetUniformLocation(shaderProgram, "model");
-	matOrthoUL.val = glGetUniformLocation(shaderProgram, "ortho");
-	boolDIMUL.val = glGetUniformLocation(shaderProgram, "mode");
-	glUseProgram(shaderProgram);
+	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
+	shader = ShaderInit("res/shaders/basic.shader");
+	matMVPUL.val = glGetUniformLocation(shader, "mvp");
+	boolTextUL.val = glGetUniformLocation(shader, "textureExists");
+	vecRGBUL.val = glGetUniformLocation(shader, "objColor");
+	matModelUL.val = glGetUniformLocation(shader, "model");
+	matOrthoUL.val = glGetUniformLocation(shader, "ortho");
+	boolDIMUL.val = glGetUniformLocation(shader, "mode");
+	glUseProgram(shader);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glfwSetCursorPosCallback(localWindow, cursorPosCallback);
+	glfwSetCursorPosCallback(local_window, CursorPosCallback);
 }
 
-void gloom::LoadFont(const char* path_to_ttf)
+void gloom::SetFieldOfView(float deg)
 {
-
+	perspective_matrix.Set(glm::perspective(glm::radians(deg), (float)window.width / (float)window.height, 0.1f, 150.f));
 }
 
-void gloom::ImguiBegin()
+gloom::Camera * gloom::GetCurrentCamera()
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-}
-
-void gloom::ImguiEnd()
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void gloom::setFOV(float deg)
-{
-	perspectiveM.set(glm::perspective(glm::radians(deg), (float)window.width / (float)window.height, 0.1f, 150.f));
+	return current_camera;
 }
 
 #endif

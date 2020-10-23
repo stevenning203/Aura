@@ -1,0 +1,12 @@
+﻿  imgui.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_widgets.cpp
+  main.cpp
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(487,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1179 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Release\Aura.exe
