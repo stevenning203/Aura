@@ -216,7 +216,7 @@ namespace gloom
 
 	ModMat translationM, rotationM, scalingM;
 
-	UniformLoc boolTextUL, vecRGBUL, matOrthoUL, matModelUL, boolDIMUL, matMVPUL;
+	UniformLoc boolTextUL, vecRGBUL, matOrthoUL, matModelUL, matProjectionUL, matViewUL, boolDIMUL;
 
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -579,8 +579,9 @@ void gloom::Mesh::Draw(ModMat mod)
 	}
 
 	// draw mesh
-	glm::mat4 temp_matrix = perspective_matrix.Get() * current_camera->GetMatrix() * mod.Get();
-	glUniformMatrix4fv(matMVPUL.val, 1, GL_FALSE, &temp_matrix[0][0]);
+	glUniformMatrix4fv(matProjectionUL.val, 1, GL_FALSE, &perspective_matrix.Get()[0][0]);
+	glUniformMatrix4fv(matModelUL.val, 1, GL_FALSE, &mod.Get()[0][0]);
+	glUniformMatrix4fv(matViewUL.val, 1, GL_FALSE, &current_camera->GetMatrix()[0][0]);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -809,7 +810,9 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	glViewport(0, 0, width, height);
 	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
 	shader = ShaderInit("res/shaders/basic.shader");
-	matMVPUL.val = glGetUniformLocation(shader, "mvp");
+	matModelUL.val = glGetUniformLocation(shader, "matrix_model");
+	matProjectionUL.val = glGetUniformLocation(shader, "matrix_projection");
+	matViewUL.val = glGetUniformLocation(shader, "matrix_view");
 	boolTextUL.val = glGetUniformLocation(shader, "textureExists");
 	vecRGBUL.val = glGetUniformLocation(shader, "objColor");
 	matModelUL.val = glGetUniformLocation(shader, "model");
