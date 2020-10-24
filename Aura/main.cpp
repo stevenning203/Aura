@@ -30,11 +30,13 @@ int main()
 	gloom::Camera cameras[50];
 	gloom::SetCurrentCamera(&cameras[0]);
 	gloom::Model backpack("models/backpack.obj");
+	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
 		//render
 
+		cameras[0].SetPos(glm::vec3(-3.f, 0.f, 3.f));
 		backpack.Draw();
 
 		{

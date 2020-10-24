@@ -1,3 +1,3 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(500,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(585,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe
