@@ -8,6 +8,7 @@ namespace state
 	bool save_file_menu_open = false;
 	bool options_menu_open = false;
 	bool models_menu_open = true;
+	bool console_open = true;
 }
 
 namespace buffers
@@ -31,6 +32,7 @@ int main()
 	gloom::Camera cameras[50];
 	gloom::SetCurrentCamera(&cameras[0]);
 	gloom::Model backpack("models/backpack.obj");
+	std::vector<gloom::Model> models;
 	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
 	while (!gloom::QueueExit())
 	{
@@ -74,6 +76,10 @@ int main()
 						if (ImGui::MenuItem("Models"))
 						{
 							state::models_menu_open = true;
+						}
+						if (ImGui::MenuItem("Console"))
+						{
+							state::console_open = true;
 						}
 					}
 					if (ImGui::MenuItem("Theme"))
@@ -140,6 +146,11 @@ int main()
 			if (state::models_menu_open)
 			{
 				ImGui::Begin("Models");
+				ImGui::End();
+			}
+			if (state::console_open)
+			{
+				ImGui::Begin("Console");
 				ImGui::End();
 			}
 		}
