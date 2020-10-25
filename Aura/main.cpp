@@ -7,6 +7,7 @@ namespace state
 	bool open_file_menu_open = false;
 	bool save_file_menu_open = false;
 	bool options_menu_open = false;
+	bool models_menu_open = true;
 }
 
 namespace buffers
@@ -70,7 +71,10 @@ int main()
 				{
 					if (ImGui::MenuItem("Menus"))
 					{
-
+						if (ImGui::MenuItem("Models"))
+						{
+							state::models_menu_open = true;
+						}
 					}
 					if (ImGui::MenuItem("Theme"))
 					{
@@ -132,6 +136,11 @@ int main()
 			if (state::save_file_menu_open)
 			{
 
+			}
+			if (state::models_menu_open)
+			{
+				ImGui::Begin("Models");
+				ImGui::End();
 			}
 		}
 		//endrender

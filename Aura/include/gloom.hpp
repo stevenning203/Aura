@@ -216,7 +216,7 @@ namespace gloom
 
 	ModMat translationM, rotationM, scalingM;
 
-	UniformLoc boolTextUL, vecRGBUL, matOrthoUL, matModelUL, matProjectionUL, matViewUL, boolDIMUL;
+	UniformLoc matOrthoUL, matModelUL, matProjectionUL, matViewUL;
 
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -810,15 +810,11 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	glViewport(0, 0, width, height);
 	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
 	shader = ShaderInit("res/shaders/basic.shader");
+	glUseProgram(shader);
 	matModelUL.val = glGetUniformLocation(shader, "matrix_model");
 	matProjectionUL.val = glGetUniformLocation(shader, "matrix_projection");
 	matViewUL.val = glGetUniformLocation(shader, "matrix_view");
-	boolTextUL.val = glGetUniformLocation(shader, "textureExists");
-	vecRGBUL.val = glGetUniformLocation(shader, "objColor");
-	matModelUL.val = glGetUniformLocation(shader, "model");
-	matOrthoUL.val = glGetUniformLocation(shader, "ortho");
-	boolDIMUL.val = glGetUniformLocation(shader, "mode");
-	glUseProgram(shader);
+	matOrthoUL.val = glGetUniformLocation(shader, "matrix_orthographic");
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
