@@ -11,6 +11,8 @@ out vec3 normal;
 uniform mat4 matrix_view;
 uniform mat4 matrix_projection;
 uniform mat4 matrix_model;
+uniform vec3 light_color;
+uniform vec3 light_position;
 
 void main()
 {
@@ -23,10 +25,15 @@ void main()
 
 #region fragment
 #version 330 core
+precision mediump float;
 
-struct LightSource
+struct Light
 {
-
+	vec3 color;
+	vec3 direction;
+	vec3 attenuation;
+	vec3 position;
+	float theta;
 };
 
 out vec3 fragment_color;
@@ -36,9 +43,7 @@ in vec3 fragment_position;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
-
-uniform vec3 light_color;
-uniform vec3 light_position;
+uniform Light lights[100];
 
 void main()
 {
@@ -48,5 +53,5 @@ void main()
 	vec3 light_direction = normalize(light_position - fragment_position);
 	float diffuse_constant = max(dot(normal, light_direction), 0.f);
 	vec3 diffuse = diffuse_constant * light_color;
-	fragment_color = (ambient + diffuse) * texture(texture_diffuse1, texture_coordinate);
+	fragment_color = (ambient + diffuse) * vec3(texture(texture_diffuse1, texture_coordinate));
 }

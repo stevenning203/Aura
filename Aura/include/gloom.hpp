@@ -30,6 +30,7 @@
 #include <math.h>
 
 typedef glm::vec3 glv3;
+typedef glm::mat4 glm4;
 
 namespace gloom
 {
@@ -111,10 +112,19 @@ namespace gloom
 		}
 	};
 
-	class UniformLoc
+	class UniformLocation
 	{
 	public:
 		int val;
+	};
+
+	struct Light
+	{
+		glv3 color;
+		glv3 direction;
+		glv3 attenuation;
+		glv3 position;
+		float theta;
 	};
 
 	struct Sprite2D
@@ -216,7 +226,9 @@ namespace gloom
 
 	ModMat translationM, rotationM, scalingM;
 
-	UniformLoc matOrthoUL, matModelUL, matProjectionUL, matViewUL;
+	UniformLocation matrix_ortographic_location, matrix_model_location, matrix_projection_location, matrix_view_location;
+
+	UniformLocation struct_light_location_color, struct_light_location_direction, struct_light_location_attenuation, struct_light_location_position, struct_light_location_theta;
 
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -264,7 +276,45 @@ namespace gloom
 
 	void ForceExit();
 
+	void WriteToShader(UniformLocation shader_location, glv3 vector);
+
+	void WriteToShader(UniformLocation shader_location, int integer);
+
+	void WriteToShader(UniformLocation shader_location, float floating_point);
+
+	void WriteToShader(UniformLocation shader_location, glm4 matrix);
+
+	void WriteToShader(UniformLocation shader_location, Light * light_sources, int n);
+
 	Camera * GetCurrentCamera();
+}
+
+void gloom::WriteToShader(UniformLocation shader_location, Light* light_sources, int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		WriteToShader()
+	}
+}
+
+void gloom::WriteToShader(UniformLocation shader_location, glv3 vector)
+{
+	glUniform3fv(shader_location.val, 1, &vector[0]);
+}
+
+void gloom::WriteToShader(UniformLocation shader_location, int integer)
+{
+	glUniform1i(shader_location.val, integer);
+}
+
+void gloom::WriteToShader(UniformLocation shader_location, float floating_point)
+{
+	glUniform1f(shader_location.val, floating_point);
+}
+
+void gloom::WriteToShader(UniformLocation shader_location, glm4 matrix)
+{
+	glUniformMatrix4fv(shader_location.val, 1, GL_FALSE, &matrix[0][0]);
 }
 
 void gloom::Poll()
@@ -556,11 +606,9 @@ void gloom::Mesh::Draw(ModMat mod)
 		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
-
-	
-	glUniformMatrix4fv(matProjectionUL.val, 1, GL_FALSE, &perspective_matrix.Get()[0][0]);
-	glUniformMatrix4fv(matModelUL.val, 1, GL_FALSE, &mod.Get()[0][0]);
-	glUniformMatrix4fv(matViewUL.val, 1, GL_FALSE, &current_camera->GetMatrix()[0][0]);
+	WriteToShader(matrix_projection_location, perspective_matrix.Get());
+	WriteToShader(matrix_model_location, mod.Get());
+	WriteToShader(matrix_view_location, current_camera->GetMatrix());
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -788,10 +836,11 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
 	shader = ShaderInit("res/shaders/basic.shader");
 	glUseProgram(shader);
-	matModelUL.val = glGetUniformLocation(shader, "matrix_model");
-	matProjectionUL.val = glGetUniformLocation(shader, "matrix_projection");
-	matViewUL.val = glGetUniformLocation(shader, "matrix_view");
-	matOrthoUL.val = glGetUniformLocation(shader, "matrix_orthographic");
+	matrix_model_location.val = glGetUniformLocation(shader, "matrix_model");
+	matrix_projection_location.val = glGetUniformLocation(shader, "matrix_projection");
+	matrix_view_location.val = glGetUniformLocation(shader, "matrix_view");
+	matrix_ortographic_location.val = glGetUniformLocation(shader, "matrix_orthographic");
+	struct_light_location_color.val = glGetUniformLocation(shader, " struct_light_location_direction, struct_light_location_attenuation, struct_light_location_position, struct_light_location_theta;
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);

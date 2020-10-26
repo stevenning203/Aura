@@ -14,8 +14,11 @@ namespace state
 namespace buffers
 {
 	const int k_char_input_max = 150;
-	char* project_name = new char[k_char_input_max];
-	char* project_location = new char[k_char_input_max];
+	const int k_char_output_max = 300;
+	char project_name[k_char_input_max];
+	char project_location[k_char_input_max];
+	char console_output[k_char_output_max];
+	char console_input[k_char_input_max];
 	void Set();
 }
 
@@ -151,6 +154,8 @@ int main()
 			if (state::console_open)
 			{
 				ImGui::Begin("Console");
+				ImGui::Text(buffers::console_output);
+				ImGui::InputText(">> console in", buffers::console_input, sizeof(buffers::console_input));
 				ImGui::End();
 			}
 		}
