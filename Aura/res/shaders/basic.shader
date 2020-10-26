@@ -23,6 +23,12 @@ void main()
 
 #region fragment
 #version 330 core
+
+struct LightSource
+{
+
+};
+
 out vec3 fragment_color;
 
 in vec2 texture_coordinate;
@@ -30,6 +36,9 @@ in vec3 fragment_position;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
+
+uniform vec3 light_color;
+uniform vec3 light_position;
 
 void main()
 {
