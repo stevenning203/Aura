@@ -228,7 +228,7 @@ namespace gloom
 
 	UniformLocation matrix_ortographic_location, matrix_model_location, matrix_projection_location, matrix_view_location;
 
-	UniformLocation struct_light_location_color, struct_light_location_direction, struct_light_location_attenuation, struct_light_location_position, struct_light_location_theta;
+	UniformLocation struct_light_location[10], struct_light_attenuation[10], struct_light_color[10], struct_light_theta[10], struct_light_direction[10];
 
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -291,9 +291,17 @@ namespace gloom
 
 void gloom::WriteToShader(UniformLocation shader_location, Light* light_sources, int n)
 {
+	if (n > 10)
+	{
+		std::exit(0);
+	}
 	for (int i = 0; i < n; i++)
 	{
-		WriteToShader()
+		WriteToShader(struct_light_attenuation[i], light_sources[i].attenuation);
+		WriteToShader(struct_light_location[i], light_sources[i].position);
+		WriteToShader(struct_light_color[i], light_sources[i].color);
+		WriteToShader(struct_light_theta[i], light_sources[i].theta);
+		WriteToShader(struct_light_direction[i], light_sources[i].direction);
 	}
 }
 
@@ -840,7 +848,20 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	matrix_projection_location.val = glGetUniformLocation(shader, "matrix_projection");
 	matrix_view_location.val = glGetUniformLocation(shader, "matrix_view");
 	matrix_ortographic_location.val = glGetUniformLocation(shader, "matrix_orthographic");
-	struct_light_location_color.val = glGetUniformLocation(shader, " struct_light_location_direction, struct_light_location_attenuation, struct_light_location_position, struct_light_location_theta;
+	std::string temp_lights = "lights[";
+	std::string temp_location = "].position";
+	std::string temp_color = "].color";
+	std::string temp_attenuation = "].attenuation";
+	std::string temp_direction = "].direction";
+	std::string temp_theta = "].theta";
+	for (int i = 0; i < 10; i++)
+	{
+		struct_light_location[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_location).c_str());
+		struct_light_color[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_color).c_str());
+		struct_light_direction[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_direction).c_str());
+		struct_light_attenuation[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_attenuation).c_str());
+		struct_light_theta[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_theta).c_str());
+	}
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);

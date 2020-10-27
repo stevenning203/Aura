@@ -43,7 +43,12 @@ in vec3 fragment_position;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
-uniform Light lights[100];
+uniform Light lights[10];
+
+void Calculate()
+{
+
+}
 
 void main()
 {
