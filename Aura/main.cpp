@@ -15,9 +15,10 @@ namespace state
 	bool open_file_menu_open = false;
 	bool save_file_menu_open = false;
 	bool options_menu_open = false;
-	bool models_menu_open = false;
+	bool models_menu_open = true;
 	bool console_open = true;
-	bool load_models_menu_open = true;
+	bool load_models_menu_open = false;
+	bool load_models_error_popup_open = false;
 }
 
 namespace buffers
@@ -52,6 +53,7 @@ int main()
 	gloom::SetCurrentCamera(&cameras[0]);
 	gloom::Model backpack("models/backpack.obj");
 	std::vector<gloom::Model> models;
+	std::vector<std::string> model_names;
 	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
 	while (!gloom::QueueExit())
 	{
@@ -185,11 +187,20 @@ int main()
 				ImGui::InputText("Model Name", buffers::model_name, sizeof(buffers::model_name));
 				if (ImGui::Button("Load"))
 				{
+					ImGui::Text("LOADING...");
 					gloom::Model temp_model(buffers::model_location);
-					models.push_back(temp_model);
-					buffers::Clear(buffers::model_location);
-					buffers::Clear(buffers::model_name);
-					
+					std::cout << temp_model.Valid() << std::endl;
+					if (!temp_model.Valid())
+					{
+						state::load_models_error_popup_open = true;
+					}
+					else
+					{
+						models.push_back(temp_model);
+						model_names.push_back(buffers::model_name);
+						buffers::Clear(buffers::model_location);
+						buffers::Clear(buffers::model_name);
+					}
 				}
 				if (ImGui::Button("Close"))
 				{
@@ -200,12 +211,22 @@ int main()
 			if (state::console_open)
 			{
 				ImGui::Begin("Console");
-				ImGui::Text(buffers::console_output);
+				ImGui::Text((std::string("OUT >> |: ") + std::string(buffers::console_output)).c_str());
 				ImGui::InputText(">> console in", buffers::console_input, sizeof(buffers::console_input));
 				if (ImGui::Button("Send"))
 				{
 					console::Parse(buffers::console_input);
 					buffers::Clear(buffers::console_input);
+				}
+				ImGui::End();
+			}
+			if (state::load_models_error_popup_open)
+			{
+				ImGui::Begin("Error");
+				ImGui::Text("Invalid path to model or model has no valid meshes");
+				if (ImGui::Button("OK"))
+				{
+					state::load_models_error_popup_open = false;
 				}
 				ImGui::End();
 			}

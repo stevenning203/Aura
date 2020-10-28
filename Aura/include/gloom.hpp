@@ -196,6 +196,7 @@ namespace gloom
 		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
 		void Draw(ModMat mod);
 		void Draw();
+		bool Valid();
 	private:
 		std::vector<Texture> textures_loaded;
 		std::vector<Mesh> meshes;
@@ -661,6 +662,11 @@ void gloom::Mesh::Draw(ModMat mod)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
+}
+
+bool gloom::Model::Valid()
+{
+	return !meshes.empty();
 }
 
 unsigned int gloom::TextureFromFile(const char* path, const std::string& directory, bool gamma)
