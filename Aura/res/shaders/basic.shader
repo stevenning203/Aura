@@ -60,5 +60,5 @@ vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 
 void main()
 {
-	fragment_color = texture(texture_diffuse1, texture_coordinate);
+	fragment_color = vec3(texture(texture_diffuse1, texture_coordinate));
 }

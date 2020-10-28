@@ -28,6 +28,7 @@
 #include <Windows.h>
 #include <shellapi.h>
 #include <math.h>
+#include <thread>
 
 typedef glm::vec3 glv3;
 typedef glm::mat4 glm4;
@@ -178,7 +179,7 @@ namespace gloom
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 		void Draw(ModMat mod);
-		void Draw(ModMat mod, Light* light_sources);
+		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
 	private:
 		unsigned int VAO, VBO, EBO;
 		void SetupMesh();
@@ -192,6 +193,7 @@ namespace gloom
 		{
 			LoadModel(path);
 		}
+		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
 		void Draw(ModMat mod);
 		void Draw();
 	private:
@@ -410,6 +412,12 @@ void gloom::Model::Draw()
 		meshes[i].Draw(this->matrix);
 }
 
+void gloom::Model::Draw(ModMat mod, Light* light_sources, int n_light_sources)
+{
+	for (int i = 0; i < meshes.size(); i++)
+		meshes[i].Draw(this->matrix, light_sources, n_light_sources);
+}
+
 void gloom::Model::LoadModel(std::string path)
 {
 	Assimp::Importer importer;
@@ -609,8 +617,6 @@ void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 			number = std::to_string(normalNr++);
 		else if (name == "texture_height")
 			number = std::to_string(heightNr++);
-
-
 		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}

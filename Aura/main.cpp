@@ -1,5 +1,13 @@
 #include "aura.hpp"
 
+namespace console
+{
+	void Parse(char* input)
+	{
+
+	}
+}
+
 namespace state
 {
 	bool saved = false;
@@ -7,25 +15,33 @@ namespace state
 	bool open_file_menu_open = false;
 	bool save_file_menu_open = false;
 	bool options_menu_open = false;
-	bool models_menu_open = true;
+	bool models_menu_open = false;
 	bool console_open = true;
+	bool load_models_menu_open = true;
 }
 
 namespace buffers
 {
-	const int k_char_input_max = 150;
-	const int k_char_output_max = 300;
+	const int k_char_input_max = 300;
 	char project_name[k_char_input_max];
 	char project_location[k_char_input_max];
-	char console_output[k_char_output_max];
+	char console_output[k_char_input_max];
 	char console_input[k_char_input_max];
+	char model_name[k_char_input_max];
+	char model_location[k_char_input_max];
 	void Set();
+	void Clear(char* buffer)
+	{
+		memset(buffer, NULL, k_char_input_max);
+	}
 }
 
 void buffers::Set()
 {
 	memset(project_name, NULL, k_char_input_max);
 	memset(project_location, NULL, k_char_input_max);
+	memset(console_output, NULL, k_char_input_max);
+	memset(console_input, NULL, k_char_input_max);
 }
 
 int main()
@@ -74,7 +90,7 @@ int main()
 				}
 				if (ImGui::BeginMenu("View"))
 				{
-					if (ImGui::MenuItem("Menus"))
+					if (ImGui::BeginMenu("Menus"))
 					{
 						if (ImGui::MenuItem("Models"))
 						{
@@ -84,6 +100,7 @@ int main()
 						{
 							state::console_open = true;
 						}
+						ImGui::EndMenu();
 					}
 					if (ImGui::MenuItem("Theme"))
 					{
@@ -131,9 +148,15 @@ int main()
 			if (state::open_file_menu_open)
 			{
 				ImGui::Begin("Open Project");
-				ImGui::InputText(".auraproj File Path", buffers::project_location, buffers::k_char_input_max);
+				ImGui::InputText(".aura File Path", buffers::project_location, buffers::k_char_input_max);
 				if (ImGui::Button("Load"))
 				{
+					std::string line;
+					std::fstream file(buffers::project_location);
+					while (std::getline(file, line))
+					{
+						break;
+					}
 					state::open_file_menu_open = false;
 				}
 				if (ImGui::Button("Close"))
@@ -149,6 +172,29 @@ int main()
 			if (state::models_menu_open)
 			{
 				ImGui::Begin("Models");
+				if (ImGui::Button("Load Models"))
+				{
+					state::load_models_menu_open = true;
+				}
+				ImGui::End();
+			}
+			if (state::load_models_menu_open)
+			{
+				ImGui::Begin("Load Model");
+				ImGui::InputText("Model Location", buffers::model_location, sizeof(buffers::model_location));
+				ImGui::InputText("Model Name", buffers::model_name, sizeof(buffers::model_name));
+				if (ImGui::Button("Load"))
+				{
+					gloom::Model temp_model(buffers::model_location);
+					models.push_back(temp_model);
+					buffers::Clear(buffers::model_location);
+					buffers::Clear(buffers::model_name);
+					
+				}
+				if (ImGui::Button("Close"))
+				{
+					state::load_models_menu_open = false;
+				}
 				ImGui::End();
 			}
 			if (state::console_open)
@@ -156,6 +202,11 @@ int main()
 				ImGui::Begin("Console");
 				ImGui::Text(buffers::console_output);
 				ImGui::InputText(">> console in", buffers::console_input, sizeof(buffers::console_input));
+				if (ImGui::Button("Send"))
+				{
+					console::Parse(buffers::console_input);
+					buffers::Clear(buffers::console_input);
+				}
 				ImGui::End();
 			}
 		}
