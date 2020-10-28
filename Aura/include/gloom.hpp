@@ -126,6 +126,14 @@ namespace gloom
 		glv3 attenuation;
 		glv3 position;
 		float theta;
+		Light(glv3 color = glv3(1.f, 1.f, 0.f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(6.f), float theta = 1.f)
+		{
+			this->color = color;
+			this->direction = direction;
+			this->attenuation = attenuation;
+			this->position = position;
+			this->theta = theta;
+		}
 	};
 
 	struct Sprite2D

@@ -55,13 +55,15 @@ int main()
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
+	gloom::Light lights[10];
+
 	while (!gloom::QueueExit())
-	{
+	{	
 		gloom::ClearBuffer();
 		//render
 
 		cameras[0].SetPos(glm::vec3(-3.f, 0.f, 3.f));
-		backpack.Draw();
+		backpack.Draw(backpack.matrix, lights, 10);
 
 		{
 			if (ImGui::BeginMainMenuBar())
@@ -177,6 +179,12 @@ int main()
 				if (ImGui::Button("Load Models"))
 				{
 					state::load_models_menu_open = true;
+				}
+				for (int i = 0; i < models.size(); i++)
+				{
+					if (i)
+						ImGui::SameLine();
+					ImGui::Text(model_names[i].c_str());
 				}
 				ImGui::End();
 			}
