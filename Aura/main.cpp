@@ -55,7 +55,7 @@ int main()
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
-	gloom::Light lights[10];
+	gloom::Light lights[1];
 
 	while (!gloom::QueueExit())
 	{	
@@ -63,7 +63,7 @@ int main()
 		//render
 
 		cameras[0].SetPos(glm::vec3(-3.f, 0.f, 3.f));
-		backpack.Draw(backpack.matrix, lights, 10);
+		backpack.Draw(backpack.matrix, lights, 1);
 
 		{
 			if (ImGui::BeginMainMenuBar())

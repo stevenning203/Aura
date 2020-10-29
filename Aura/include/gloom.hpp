@@ -1,6 +1,7 @@
 #ifndef GLOOM_IMPORTED
 #define GLOOM_IMPORTED
 #define STB_IMAGE_IMPLEMENTATION
+#define k_max_n_lights 100
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -126,7 +127,7 @@ namespace gloom
 		glv3 attenuation;
 		glv3 position;
 		float theta;
-		Light(glv3 color = glv3(1.f, 1.f, 0.f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(6.f), float theta = 1.f)
+		Light(glv3 color = glv3(1.f, 1.f, 0.f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(50.f), float theta = 1.f)
 		{
 			this->color = color;
 			this->direction = direction;
@@ -205,6 +206,9 @@ namespace gloom
 		void Draw(ModMat mod);
 		void Draw();
 		bool Valid();
+		void Enable();
+		void Disable();
+		bool IsEnabled();
 	private:
 		std::vector<Texture> textures_loaded;
 		std::vector<Mesh> meshes;
@@ -213,6 +217,7 @@ namespace gloom
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+		bool enabled = true;
 	};
 
 	class Window
@@ -240,7 +245,9 @@ namespace gloom
 
 	UniformLocation matrix_ortographic_location, matrix_model_location, matrix_projection_location, matrix_view_location;
 
-	UniformLocation struct_light_location[10], struct_light_attenuation[10], struct_light_color[10], struct_light_theta[10], struct_light_direction[10];
+	UniformLocation int_n_lights_location;
+
+	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
 
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -303,7 +310,7 @@ namespace gloom
 
 void gloom::WriteToShader(UniformLocation shader_location, Light* light_sources, int n)
 {
-	if (n > 10)
+	if (n > k_max_n_lights)
 	{
 		std::exit(0);
 	}
@@ -407,6 +414,21 @@ void gloom::FlipDisplay()
 glm::vec2 gloom::GetMousePos()
 {
 	return glm::vec2(mouse_x, mouse_y);
+}
+
+void gloom::Model::Enable()
+{
+	enabled = true;
+}
+
+void gloom::Model::Disable()
+{
+	enabled = false;
+}
+
+bool gloom::Model::IsEnabled()
+{
+	return enabled;
 }
 
 void gloom::Model::Draw(ModMat mod)
@@ -633,6 +655,7 @@ void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 	WriteToShader(matrix_model_location, mod.Get());
 	WriteToShader(matrix_view_location, current_camera->GetMatrix());
 	WriteToShader(matrix_view_location, light_sources, n_light_sources);
+	WriteToShader(int_n_lights_location, n_light_sources);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -902,13 +925,14 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	matrix_projection_location.val = glGetUniformLocation(shader, "matrix_projection");
 	matrix_view_location.val = glGetUniformLocation(shader, "matrix_view");
 	matrix_ortographic_location.val = glGetUniformLocation(shader, "matrix_orthographic");
+	int_n_lights_location.val = glGetUniformLocation(shader, "n_lights");
 	std::string temp_lights = "lights[";
 	std::string temp_location = "].position";
 	std::string temp_color = "].color";
 	std::string temp_attenuation = "].attenuation";
 	std::string temp_direction = "].direction";
 	std::string temp_theta = "].theta";
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < k_max_n_lights; i++)
 	{
 		struct_light_location[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_location).c_str());
 		struct_light_color[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_color).c_str());
