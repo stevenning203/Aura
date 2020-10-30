@@ -4,35 +4,35 @@ namespace aura
 {
 	class Scene
 	{
-		std::vector<gloom::Model> models;
-		std::vector<gloom::Light> lights;
-		std::vector<gloom::Camera> cameras;
-		void Draw(int camera_index)
+		std::unordered_map<std::string, gloom::Model> models;
+		std::unordered_map<std::string, gloom::Light> lights;
+		std::unordered_map<std::string, gloom::Camera> cameras;
+		void Draw(std::string camera_key)
 		{
-			gloom::SetCurrentCamera(&cameras[camera_index]);
-			for (int i = 0; i < models.size(); i++)
+			gloom::SetCurrentCamera(&cameras[camera_key]);
+			for (auto &i: models)
 			{
-				if (models[i].IsEnabled())
+				if (i.second.IsEnabled())
 				{
-					models[i].Draw(models[i].matrix, lights.data(), lights.size());
+					i.second.Draw(i.second.matrix, lights, lights.size());
 				}
 			}
 		}
-		void AddModel(gloom::Model model)
+		void AddModel(std::string key, gloom::Model model)
 		{
-			models.push_back(model);
+			models[key] = model;
 		}
-		void RemoveModel(int index)
+		void RemoveModel(std::string key)
 		{
-
+			models.erase(key);
 		}
-		void AddLight(gloom::Light light)
+		void AddLight(std::string key, gloom::Light light)
 		{
-			lights.push_back(light);
+			lights[key] = light;
 		}
-		void RemoveLight(int index)
+		void RemoveLight(std::string key)
 		{
-
+			lights.erase(key);
 		}
 	};
 

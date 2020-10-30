@@ -642,13 +642,13 @@ void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 	WriteToShader(int_n_lights_location, n_light_sources);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-}
 
 bool gloom::Model::Valid()
 {
 	return !meshes.empty();
+}
+	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 unsigned int gloom::TextureFromFile(const char* path, const std::string& directory, bool gamma)
