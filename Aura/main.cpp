@@ -19,6 +19,8 @@ namespace state
 	bool console_open = true;
 	bool load_models_menu_open = false;
 	bool load_models_error_popup_open = false;
+	bool objects_menu_open = false;
+	bool scenes_menu_open = false;
 }
 
 namespace buffers
@@ -30,6 +32,9 @@ namespace buffers
 	char console_input[k_char_input_max];
 	char model_name[k_char_input_max];
 	char model_location[k_char_input_max];
+
+	bool flip_uvs = true;
+
 	void Set();
 	void Clear(char* buffer)
 	{
@@ -51,19 +56,23 @@ int main()
 	gloom::Init(1280, 720, "Aura");
 	gloom::Camera cameras[50];
 	gloom::SetCurrentCamera(&cameras[0]);
-	gloom::Model backpack("models/backpack.obj");
+	gloom::Model backpack("models/backpack/backpack.obj");
+	gloom::Model light_source("models/lightsource_placeholder/light_source.obj", false);
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
-	gloom::SetClearColor(0.5f, 0.5f, 0.5f);
-	gloom::Light lights[1];
+	std::vector<aura::Scene> scenes;
+	std::vector<gloom::Light> lights(k_max_n_lights);
+	gloom::SetClearColor(0.65f, 0.5f, 0.65f);
 
 	while (!gloom::QueueExit())
 	{	
 		gloom::ClearBuffer();
 		//render
 
-		cameras[0].SetPos(glm::vec3(-3.f, 0.f, 3.f));
-		backpack.Draw(backpack.matrix, lights, 1);
+		cameras[0].SetPos(glm::vec3(cos(gloom::GetTime()) * 5, 3.f, sin(gloom::GetTime()) * 5));
+		lights[0].position = glv3(0, 0, 0);
+		backpack.Draw(backpack.matrix, lights.data(), 5);
+		light_source.Draw(light_source.matrix, lights.data(), 0);
 
 		{
 			if (ImGui::BeginMainMenuBar())
@@ -99,6 +108,14 @@ int main()
 						if (ImGui::MenuItem("Models"))
 						{
 							state::models_menu_open = true;
+						}
+						if (ImGui::MenuItem("Objects"))
+						{
+							state::objects_menu_open = true;
+						}
+						if (ImGui::MenuItem("Scenes"))
+						{
+							state::scenes_menu_open = true;
 						}
 						if (ImGui::MenuItem("Console"))
 						{
@@ -188,15 +205,22 @@ int main()
 				}
 				ImGui::End();
 			}
+			if (state::objects_menu_open)
+			{
+				ImGui::Begin("Objects");
+				
+				ImGui::End();
+			}
 			if (state::load_models_menu_open)
 			{
 				ImGui::Begin("Load Model");
 				ImGui::InputText("Model Location", buffers::model_location, sizeof(buffers::model_location));
 				ImGui::InputText("Model Name", buffers::model_name, sizeof(buffers::model_name));
+				ImGui::Checkbox("Flip UVS", &buffers::flip_uvs);
 				if (ImGui::Button("Load"))
 				{
 					ImGui::Text("LOADING...");
-					gloom::Model temp_model(buffers::model_location);
+					gloom::Model temp_model(buffers::model_location, buffers::flip_uvs);
 					std::cout << temp_model.Valid() << std::endl;
 					if (!temp_model.Valid())
 					{

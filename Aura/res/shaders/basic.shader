@@ -44,17 +44,18 @@ in vec3 normal;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
+uniform sampler2D texture_normal1;
 uniform Light lights[100];
 uniform int n_lights;
 
-float ambient_strength = 0.9f;
+float ambient_strength = 0.1f;
 
 vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 {
 	vec3 ambient = ambient_strength * light_source.color;
 	vec3 normalized = normalize(normal);
 	vec3 light_direction = normalize(light_source.position - fragment_position);
-	float diffuse_constant = max(dot(normal, light_direction), ambient_strength);
+	float diffuse_constant = max(dot(normal, light_direction), 0.15f);
 	vec3 diffuse = diffuse_constant * light_source.color;
 	return diffuse;
 }
@@ -66,5 +67,6 @@ void main()
 	{
 		lighting_vector = CalculateDiffuse(lights[i], fragment_position) * lighting_vector;
 	}
-	fragment_color = lighting_vector * vec3(texture(texture_diffuse1, texture_coordinate));
+	//fragment_color = lighting_vector * vec3(texture(texture_diffuse1, texture_coordinate));
+	fragment_color = CalculateDiffuse(lights[0], fragment_position) * vec3(texture(texture_diffuse1, texture_coordinate));
 }

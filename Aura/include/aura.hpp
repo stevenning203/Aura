@@ -35,11 +35,13 @@ namespace aura
 
 		}
 	};
+
 	class Object
 	{
-		Object(const char* path)
+		int id = -1;
+		Object(gloom::Model model_load)
 		{
-			gloom::Model model(path);
+			gloom::Model model = model_load;
 		}
 	};
 }

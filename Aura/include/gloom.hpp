@@ -127,7 +127,7 @@ namespace gloom
 		glv3 attenuation;
 		glv3 position;
 		float theta;
-		Light(glv3 color = glv3(1.f, 1.f, 0.f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(50.f), float theta = 1.f)
+		Light(glv3 color = glv3(1.f, 1.f, 0.85f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(0.f), float theta = 1.f)
 		{
 			this->color = color;
 			this->direction = direction;
@@ -187,7 +187,6 @@ namespace gloom
 		std::vector<Texture>      textures;
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void Draw(ModMat mod);
 		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
 	private:
 		unsigned int VAO, VBO, EBO;
@@ -198,13 +197,11 @@ namespace gloom
 	{
 	public:
 		ModMat matrix;
-		Model(const char* path)
+		Model(const char* path, bool flip_uvs = true)
 		{
-			LoadModel(path);
+			LoadModel(path, flip_uvs);
 		}
 		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
-		void Draw(ModMat mod);
-		void Draw();
 		bool Valid();
 		void Enable();
 		void Disable();
@@ -213,7 +210,7 @@ namespace gloom
 		std::vector<Texture> textures_loaded;
 		std::vector<Mesh> meshes;
 		std::string dir;
-		void LoadModel(std::string path);
+		void LoadModel(std::string path, bool flip_uvs);
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
@@ -248,7 +245,7 @@ namespace gloom
 	UniformLocation int_n_lights_location;
 
 	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
-
+	
 	void SetCurrentCamera(Camera* camera_set);
 
 	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
@@ -261,7 +258,7 @@ namespace gloom
 
 	void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
-	void ParseShader(std::string path, std::string* ptrToVertexShaderSrc, std::string* ptrToFragmentShaderSrc);
+	void ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr);
 
 	unsigned int ShaderInit(const char* path);
 
@@ -431,29 +428,16 @@ bool gloom::Model::IsEnabled()
 	return enabled;
 }
 
-void gloom::Model::Draw(ModMat mod)
-{
-	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(mod);
-}
-
-void gloom::Model::Draw()
-{
-	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(this->matrix);
-}
-
 void gloom::Model::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 {
 	for (int i = 0; i < meshes.size(); i++)
 		meshes[i].Draw(this->matrix, light_sources, n_light_sources);
 }
 
-void gloom::Model::LoadModel(std::string path)
+void gloom::Model::LoadModel(std::string path, bool flip_uvs)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
+	const aiScene* scene = flip_uvs ? importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs) : importer.ReadFile(path, aiProcess_Triangulate);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -631,11 +615,11 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 
 void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 {
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int normalNr = 1;
-	unsigned int heightNr = 1;
-	for (unsigned int i = 0; i < textures.size(); i++)
+	int diffuseNr = 1;
+	int specularNr = 1;
+	int normalNr = 1;
+	int heightNr = 1;
+	for (int i = 0; i < textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		std::string number;
@@ -656,39 +640,6 @@ void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 	WriteToShader(matrix_view_location, current_camera->GetMatrix());
 	WriteToShader(matrix_view_location, light_sources, n_light_sources);
 	WriteToShader(int_n_lights_location, n_light_sources);
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-}
-
-void gloom::Mesh::Draw(ModMat mod)
-{
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int normalNr = 1;
-	unsigned int heightNr = 1;
-	for (unsigned int i = 0; i < textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::string number;
-		std::string name = textures[i].type;
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++); 
-		else if (name == "texture_normal")
-			number = std::to_string(normalNr++); 
-		else if (name == "texture_height")
-			number = std::to_string(heightNr++); 
-
-
-		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
-	}
-	WriteToShader(matrix_projection_location, perspective_matrix.Get());
-	WriteToShader(matrix_model_location, mod.Get());
-	WriteToShader(matrix_view_location, current_camera->GetMatrix());
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -800,10 +751,10 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void gloom::ParseShader(std::string path, std::string* ptr_vs_src, std::string* ptr_fs_src)
+void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
 {
-	std::string* ptvss = ptr_vs_src;
-	std::string* ptfss = ptr_fs_src;
+	std::string* ptvss = vertex_shader_src_ptr;
+	std::string* ptfss = fragment_shader_src_ptr;
 	std::string line;
 	std::ifstream stream;
 	std::stringstream string_stream[2];
