@@ -21,6 +21,7 @@ namespace state
 	bool load_models_error_popup_open = false;
 	bool objects_menu_open = false;
 	bool scenes_menu_open = false;
+	bool context_editor_open = true;
 }
 
 namespace buffers
@@ -54,26 +55,32 @@ int main()
 {
 	buffers::Set();
 	gloom::Init(1280, 720, "Aura");
-	gloom::Camera cameras[50];
-	gloom::SetCurrentCamera(&cameras[0]);
 	gloom::Model backpack("models/backpack/backpack.obj");
 	gloom::Model light_source("models/lightsource_placeholder/light_source.obj", false);
+
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
-	std::vector<aura::Scene> scenes;
-	std::vector<gloom::Light> lights(k_max_n_lights);
+	std::unordered_map<std::string, gloom::Light> lights;
+	lights["hello"] = gloom::Light();
+	
+	aura::Scene main_scene;
+	gloom::Camera main_camera;
+	main_camera.SetPos(glv3(1.f, 1.f, 2.f));
+	gloom::SetCurrentCamera(&main_camera);
+
+	main_scene.AddModel("backpack", backpack);
+	main_scene.AddCamera("main", main_camera);
+	main_scene.AddLight("hello", lights["hello"]);
+
 	gloom::SetClearColor(0.65f, 0.5f, 0.65f);
 
 	while (!gloom::QueueExit())
 	{	
+
 		gloom::ClearBuffer();
 		//render
-
-		cameras[0].SetPos(glm::vec3(cos(gloom::GetTime()) * 5, 3.f, sin(gloom::GetTime()) * 5));
-		lights[0].position = glv3(0, 0, 0);
-		backpack.Draw(backpack.matrix, lights.data(), 5);
-		light_source.Draw(light_source.matrix, lights.data(), 0);
-
+		//backpack.Draw(backpack.matrix, lights);
+		main_scene.Draw("main");
 		{
 			if (ImGui::BeginMainMenuBar())
 			{
@@ -105,6 +112,10 @@ int main()
 				{
 					if (ImGui::BeginMenu("Menus"))
 					{
+						if (ImGui::MenuItem("Context Editor"))
+						{
+							state::context_editor_open = true;
+						}
 						if (ImGui::MenuItem("Models"))
 						{
 							state::models_menu_open = true;
@@ -238,6 +249,11 @@ int main()
 				{
 					state::load_models_menu_open = false;
 				}
+				ImGui::End();
+			}
+			if (state::context_editor_open)
+			{
+				ImGui::Begin("Context Editor");
 				ImGui::End();
 			}
 			if (state::console_open)

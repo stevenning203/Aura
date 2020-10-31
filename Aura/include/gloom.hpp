@@ -187,7 +187,7 @@ namespace gloom
 		std::vector<Texture>      textures;
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
+		void Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources);
 	private:
 		unsigned int VAO, VBO, EBO;
 		void SetupMesh();
@@ -197,11 +197,11 @@ namespace gloom
 	{
 	public:
 		ModMat matrix;
-		Model(const char* path, bool flip_uvs = true)
+		Model(const char* path = "IRP", bool flip_uvs = true)
 		{
 			LoadModel(path, flip_uvs);
 		}
-		void Draw(ModMat mod, Light* light_sources, int n_light_sources);
+		void Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources);
 		bool Valid();
 		void Enable();
 		void Disable();
@@ -300,24 +300,22 @@ namespace gloom
 
 	void WriteToShader(UniformLocation shader_location, glm4 matrix);
 
-	void WriteToShader(UniformLocation shader_location, Light * light_sources, int n);
+	void WriteToShader(UniformLocation shader_location, std::unordered_map<std::string, Light> light_sources);
 
 	Camera * GetCurrentCamera();
 }
 
-void gloom::WriteToShader(UniformLocation shader_location, Light* light_sources, int n)
+void gloom::WriteToShader(UniformLocation shader_location, std::unordered_map<std::string, Light> light_sources)
 {
-	if (n > k_max_n_lights)
+	int index = 0;
+	for (auto &i : light_sources)
 	{
-		std::exit(0);
-	}
-	for (int i = 0; i < n; i++)
-	{
-		WriteToShader(struct_light_attenuation[i], light_sources[i].attenuation);
-		WriteToShader(struct_light_location[i], light_sources[i].position);
-		WriteToShader(struct_light_color[i], light_sources[i].color);
-		WriteToShader(struct_light_theta[i], light_sources[i].theta);
-		WriteToShader(struct_light_direction[i], light_sources[i].direction);
+		WriteToShader(struct_light_attenuation[index], i.second.attenuation);
+		WriteToShader(struct_light_location[index], i.second.position);
+		WriteToShader(struct_light_color[index], i.second.color);
+		WriteToShader(struct_light_theta[index], i.second.theta);
+		WriteToShader(struct_light_direction[index], i.second.direction);
+		index++;
 	}
 }
 
@@ -428,10 +426,10 @@ bool gloom::Model::IsEnabled()
 	return enabled;
 }
 
-void gloom::Model::Draw(ModMat mod, Light* light_sources, int n_light_sources)
+void gloom::Model::Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources)
 {
 	for (int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(this->matrix, light_sources, n_light_sources);
+		meshes[i].Draw(this->matrix, light_sources);
 }
 
 void gloom::Model::LoadModel(std::string path, bool flip_uvs)
@@ -440,6 +438,8 @@ void gloom::Model::LoadModel(std::string path, bool flip_uvs)
 	const aiScene* scene = flip_uvs ? importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs) : importer.ReadFile(path, aiProcess_Triangulate);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
+		if (path == "IRP")
+			return;
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 		return;
 	}
@@ -613,7 +613,7 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 	current_camera = camera_set;
 }
 
-void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
+void gloom::Mesh::Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources)
 {
 	int diffuseNr = 1;
 	int specularNr = 1;
@@ -638,17 +638,17 @@ void gloom::Mesh::Draw(ModMat mod, Light* light_sources, int n_light_sources)
 	WriteToShader(matrix_projection_location, perspective_matrix.Get());
 	WriteToShader(matrix_model_location, mod.Get());
 	WriteToShader(matrix_view_location, current_camera->GetMatrix());
-	WriteToShader(matrix_view_location, light_sources, n_light_sources);
-	WriteToShader(int_n_lights_location, n_light_sources);
+	WriteToShader(matrix_view_location, light_sources);
+	WriteToShader(int_n_lights_location, (int)light_sources.size());
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
+}
 
 bool gloom::Model::Valid()
 {
 	return !meshes.empty();
-}
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
 }
 
 unsigned int gloom::TextureFromFile(const char* path, const std::string& directory, bool gamma)

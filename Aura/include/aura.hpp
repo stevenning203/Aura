@@ -7,6 +7,10 @@ namespace aura
 		std::unordered_map<std::string, gloom::Model> models;
 		std::unordered_map<std::string, gloom::Light> lights;
 		std::unordered_map<std::string, gloom::Camera> cameras;
+		std::vector<gloom::Model> models_vector;
+		std::vector<gloom::Light> lights_vector;
+		std::vector<gloom::Camera> cameras_vector;
+	public:
 		void Draw(std::string camera_key)
 		{
 			gloom::SetCurrentCamera(&cameras[camera_key]);
@@ -14,7 +18,7 @@ namespace aura
 			{
 				if (i.second.IsEnabled())
 				{
-					i.second.Draw(i.second.matrix, lights, lights.size());
+					i.second.Draw(i.second.matrix, lights);
 				}
 			}
 		}
@@ -33,6 +37,14 @@ namespace aura
 		void RemoveLight(std::string key)
 		{
 			lights.erase(key);
+		}
+		void AddCamera(std::string key, gloom::Camera camera)
+		{
+			cameras[key] = camera;
+		}
+		void RemoveCamera(std::string key)
+		{
+			cameras.erase(key);
 		}
 	};
 
