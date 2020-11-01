@@ -61,7 +61,7 @@ int main()
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::unordered_map<std::string, gloom::Light> lights;
-	lights["hello"] = gloom::Light();
+	lights["hello"] = gloom::Light(glv3(1.f, 0.f, 0.2f));
 	
 	aura::Scene main_scene;
 	gloom::Camera main_camera;
@@ -71,15 +71,20 @@ int main()
 	main_scene.AddModel("backpack", backpack);
 	main_scene.AddCamera("main", main_camera);
 	main_scene.AddLight("hello", lights["hello"]);
+	main_scene.AddLight("bobby", gloom::Light(glv3(0.3f, 0.9f, 0.f), glv3(0, 0, -1.f), glv3(1.f, 1.f, 1.f), glv3(2.f, 2.f, 2.f)));
+	main_scene.models["backpack"].matrix.XYZ(glv3(2.f, -1.5f, 0.f));
+
+	aura::SetActiveScene(&main_scene);
 
 	gloom::SetClearColor(0.65f, 0.5f, 0.65f);
+
+	aura::active_scene->lights["hello"].color[0] -= gloom::GetTime() / 20.f;
 
 	while (!gloom::QueueExit())
 	{	
 
 		gloom::ClearBuffer();
 		//render
-		//backpack.Draw(backpack.matrix, lights);
 		main_scene.Draw("main");
 		{
 			if (ImGui::BeginMainMenuBar())

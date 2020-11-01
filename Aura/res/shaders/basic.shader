@@ -55,13 +55,18 @@ vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 	vec3 ambient = ambient_strength * light_source.color;
 	vec3 normalized = normalize(normal);
 	vec3 light_direction = normalize(light_source.position - fragment_position);
-	float diffuse_constant = max(dot(normal, light_direction), 0.15f);
+	float diffuse_constant = max(dot(normal, light_direction), ambient_strength);
 	vec3 diffuse = diffuse_constant * light_source.color;
 	return diffuse;
 }
 
 void main()
 {
-	fragment_color = CalculateDiffuse(lights[0], fragment_position) * vec3(texture(texture_diffuse1, texture_coordinate));
-	//fragment_color = vec3(texture(texture_diffuse1, texture_coordinate));
+	vec3 texture_fragment = vec3(texture(texture_diffuse1, texture_coordinate));
+	vec3 light_multiplier = vec3(0.f);
+	for (int i = 0; i < n_lights; i++)
+	{
+		light_multiplier += CalculateDiffuse(lights[i], fragment_position);
+	}
+	fragment_color = texture_fragment * light_multiplier;
 }

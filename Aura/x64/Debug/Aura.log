@@ -1,5 +1,8 @@
 ﻿  main.cpp
 C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(644,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(117,15): error C2039: 'contex_editor_open': is not a member of 'state'
-C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(11): message : see declaration of 'state'
-C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(117,34): error C2065: 'contex_editor_open': undeclared identifier
+C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(81,73): warning C4244: '-=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

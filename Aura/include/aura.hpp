@@ -2,15 +2,27 @@
 
 namespace aura
 {
+	class Player
+	{
+		
+	};
+	class Object
+	{
+		int id = -1;
+		Object(gloom::Model model_load)
+		{
+			gloom::Model model = model_load;
+		}
+	};
 	class Scene
 	{
-		std::unordered_map<std::string, gloom::Model> models;
-		std::unordered_map<std::string, gloom::Light> lights;
-		std::unordered_map<std::string, gloom::Camera> cameras;
 		std::vector<gloom::Model> models_vector;
 		std::vector<gloom::Light> lights_vector;
 		std::vector<gloom::Camera> cameras_vector;
 	public:
+		std::unordered_map<std::string, gloom::Model> models;
+		std::unordered_map<std::string, gloom::Light> lights;
+		std::unordered_map<std::string, gloom::Camera> cameras;
 		void Draw(std::string camera_key)
 		{
 			gloom::SetCurrentCamera(&cameras[camera_key]);
@@ -48,12 +60,10 @@ namespace aura
 		}
 	};
 
-	class Object
+	Scene* active_scene;
+
+	void SetActiveScene(Scene* scene)
 	{
-		int id = -1;
-		Object(gloom::Model model_load)
-		{
-			gloom::Model model = model_load;
-		}
-	};
+		active_scene = scene;
+	}
 }
