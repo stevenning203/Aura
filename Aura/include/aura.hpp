@@ -9,9 +9,18 @@ namespace aura
 	class Object
 	{
 		int id = -1;
+	public:
+		glv3 position = glv3(0.f);
+		glv3 scale = glv3(1.f);
+		std::string name = "Unnamed Object";
+		gloom::Model model;
 		Object(gloom::Model model_load)
 		{
-			gloom::Model model = model_load;
+			this->model = model_load;
+		}
+		void Draw(gloom::ModMat matrix, std::unordered_map<std::string, gloom::Light> lights)
+		{
+			this->model.Draw(matrix, lights);
 		}
 	};
 	class Scene
@@ -20,17 +29,18 @@ namespace aura
 		std::vector<gloom::Light> lights_vector;
 		std::vector<gloom::Camera> cameras_vector;
 	public:
+		std::vector<Object> objects;
 		std::unordered_map<std::string, gloom::Model> models;
 		std::unordered_map<std::string, gloom::Light> lights;
 		std::unordered_map<std::string, gloom::Camera> cameras;
-		void Draw(std::string camera_key)
+		void Draw()
 		{
-			gloom::SetCurrentCamera(&cameras[camera_key]);
-			for (auto &i: models)
+			for (int i = 0; i < objects.size(); i++)
 			{
-				if (i.second.IsEnabled())
+				Object& ref = objects[i];
+				if (ref.model.IsEnabled())
 				{
-					i.second.Draw(i.second.matrix, lights);
+					ref.model.Draw(ref.model.matrix, lights);
 				}
 			}
 		}

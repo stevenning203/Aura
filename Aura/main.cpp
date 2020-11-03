@@ -22,6 +22,7 @@ namespace state
 	bool objects_menu_open = false;
 	bool scenes_menu_open = false;
 	bool context_editor_open = true;
+	bool lights_menu_open = false;
 }
 
 namespace buffers
@@ -36,25 +37,15 @@ namespace buffers
 
 	bool flip_uvs = true;
 
-	void Set();
 	void Clear(char* buffer)
 	{
 		memset(buffer, NULL, k_char_input_max);
 	}
 }
 
-void buffers::Set()
-{
-	memset(project_name, NULL, k_char_input_max);
-	memset(project_location, NULL, k_char_input_max);
-	memset(console_output, NULL, k_char_input_max);
-	memset(console_input, NULL, k_char_input_max);
-}
-
 int main()
 {
-	buffers::Set();
-	gloom::Init(1280, 720, "Aura");
+	gloom::Init(1920, 1080, "Aura");
 	gloom::Model backpack("models/backpack/backpack.obj");
 	gloom::Model light_source("models/lightsource_placeholder/light_source.obj", false);
 
@@ -65,7 +56,7 @@ int main()
 	
 	aura::Scene main_scene;
 	gloom::Camera main_camera;
-	main_camera.SetPos(glv3(1.f, 1.f, 2.f));
+	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
 
 	main_scene.AddModel("backpack", backpack);
@@ -78,14 +69,12 @@ int main()
 
 	gloom::SetClearColor(0.65f, 0.5f, 0.65f);
 
-	aura::active_scene->lights["hello"].color[0] -= gloom::GetTime() / 20.f;
-
 	while (!gloom::QueueExit())
 	{	
 
 		gloom::ClearBuffer();
 		//render
-		main_scene.Draw("main");
+		aura::active_scene->Draw();
 		{
 			if (ImGui::BeginMainMenuBar())
 			{
@@ -124,6 +113,10 @@ int main()
 						if (ImGui::MenuItem("Models"))
 						{
 							state::models_menu_open = true;
+						}
+						if (ImGui::MenuItem("Lights"))
+						{
+							state::lights_menu_open = true;
 						}
 						if (ImGui::MenuItem("Objects"))
 						{
@@ -217,14 +210,33 @@ int main()
 				{
 					if (i)
 						ImGui::SameLine();
-					ImGui::Text(model_names[i].c_str());
+					if (ImGui::Button(model_names[i].c_str()))
+					{
+						aura::active_scene->objects.push_back(aura::Object(models[i]));
+					}
 				}
 				ImGui::End();
 			}
 			if (state::objects_menu_open)
 			{
 				ImGui::Begin("Objects");
-				
+				for (int i = 0; i < aura::active_scene->objects.size(); i++)
+				{
+					std::cout << i << std::endl;
+					if (ImGui::CollapsingHeader(aura::active_scene->objects[i].name.c_str()))
+					{
+						ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1);
+						ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1);
+						ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1);
+						ImGui::InputFloat("X Scale", &aura::active_scene->objects[i].scale.x, 1, 1);
+						ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1);
+						ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1);
+						if (ImGui::Button("Delete Object"))
+						{
+							aura::active_scene->objects.erase(aura::active_scene->objects.begin() + i);
+						}
+					}
+				}
 				ImGui::End();
 			}
 			if (state::load_models_menu_open)
@@ -237,7 +249,6 @@ int main()
 				{
 					ImGui::Text("LOADING...");
 					gloom::Model temp_model(buffers::model_location, buffers::flip_uvs);
-					std::cout << temp_model.Valid() << std::endl;
 					if (!temp_model.Valid())
 					{
 						state::load_models_error_popup_open = true;
