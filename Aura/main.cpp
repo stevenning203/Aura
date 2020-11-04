@@ -59,7 +59,6 @@ int main()
 	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
 
-	main_scene.AddModel("backpack", backpack);
 	main_scene.AddCamera("main", main_camera);
 	main_scene.AddLight("hello", lights["hello"]);
 	main_scene.AddLight("bobby", gloom::Light(glv3(0.3f, 0.9f, 0.f), glv3(0, 0, -1.f), glv3(1.f, 1.f, 1.f), glv3(2.f, 2.f, 2.f)));
@@ -220,21 +219,25 @@ int main()
 			if (state::objects_menu_open)
 			{
 				ImGui::Begin("Objects");
+				if (ImGui::Button("Close"))
+				{
+					state::objects_menu_open = false;
+				}
 				for (int i = 0; i < aura::active_scene->objects.size(); i++)
 				{
-					std::cout << i << std::endl;
-					if (ImGui::CollapsingHeader(aura::active_scene->objects[i].name.c_str()))
+					if (ImGui::TreeNode((aura::active_scene->objects[i].name + std::to_string(i)).c_str()))
 					{
 						ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1);
 						ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1);
 						ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1);
-						ImGui::InputFloat("X Scale", &aura::active_scene->objects[i].scale.x, 1, 1);
+						ImGui::InputFloat("X Scale", &(aura::active_scene->objects[i].scale.x), 1, 1);
 						ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1);
 						ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1);
 						if (ImGui::Button("Delete Object"))
 						{
 							aura::active_scene->objects.erase(aura::active_scene->objects.begin() + i);
 						}
+						ImGui::TreePop();
 					}
 				}
 				ImGui::End();
