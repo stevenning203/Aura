@@ -51,17 +51,16 @@ int main()
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
-	std::unordered_map<std::string, gloom::Light> lights;
-	lights["hello"] = gloom::Light(glv3(1.f, 0.f, 0.2f));
+	std::vector<gloom::Light> lights(5);
+	lights[0].color = glv3(1.f, 0.f, 1.f);
 	
 	aura::Scene main_scene;
 	gloom::Camera main_camera;
 	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
 
-	main_scene.AddCamera("main", main_camera);
-	main_scene.AddLight("hello", lights["hello"]);
-	main_scene.AddLight("bobby", gloom::Light(glv3(0.3f, 0.9f, 0.f), glv3(0, 0, -1.f), glv3(1.f, 1.f, 1.f), glv3(2.f, 2.f, 2.f)));
+	main_scene.AddCamera(main_camera);
+	main_scene.AddLight(lights[0]);
 
 	aura::SetActiveScene(&main_scene);
 

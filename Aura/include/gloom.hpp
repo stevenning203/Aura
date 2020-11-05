@@ -187,7 +187,7 @@ namespace gloom
 		std::vector<Texture>      textures;
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources);
+		void Draw(ModMat mod, std::vector<Light> &light_sources);
 	private:
 		unsigned int VAO, VBO, EBO;
 		void SetupMesh();
@@ -200,7 +200,7 @@ namespace gloom
 		{
 			LoadModel(path, flip_uvs);
 		}
-		void Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources);
+		void Draw(ModMat mod, std::vector<Light> &light_sources);
 		bool Valid();
 		void Enable();
 		void Disable();
@@ -299,21 +299,21 @@ namespace gloom
 
 	void WriteToShader(UniformLocation shader_location, glm4 matrix);
 
-	void WriteToShader(UniformLocation shader_location, std::unordered_map<std::string, Light> light_sources);
+	void WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources);
 
 	Camera * GetCurrentCamera();
 }
 
-void gloom::WriteToShader(UniformLocation shader_location, std::unordered_map<std::string, Light> light_sources)
+void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources)
 {
 	int index = 0;
 	for (auto &i : light_sources)
 	{
-		WriteToShader(struct_light_attenuation[index], i.second.attenuation);
-		WriteToShader(struct_light_location[index], i.second.position);
-		WriteToShader(struct_light_color[index], i.second.color);
-		WriteToShader(struct_light_theta[index], i.second.theta);
-		WriteToShader(struct_light_direction[index], i.second.direction);
+		WriteToShader(struct_light_attenuation[index], i.attenuation);
+		WriteToShader(struct_light_location[index], i.position);
+		WriteToShader(struct_light_color[index], i.color);
+		WriteToShader(struct_light_theta[index], i.theta);
+		WriteToShader(struct_light_direction[index], i.direction);
 		index++;
 	}
 }
@@ -425,7 +425,7 @@ bool gloom::Model::IsEnabled()
 	return enabled;
 }
 
-void gloom::Model::Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources)
+void gloom::Model::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
 	for (int i = 0; i < meshes.size(); i++)
 		meshes[i].Draw(mod, light_sources);
@@ -612,7 +612,7 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 	current_camera = camera_set;
 }
 
-void gloom::Mesh::Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources)
+void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
 	int diffuseNr = 1;
 	int specularNr = 1;

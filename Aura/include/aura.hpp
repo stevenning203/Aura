@@ -19,7 +19,7 @@ namespace aura
 		{
 			this->model = model_load;
 		}
-		void Draw(gloom::ModMat matrix, std::unordered_map<std::string, gloom::Light> &lights)
+		void Draw(gloom::ModMat matrix, std::vector<gloom::Light> &lights)
 		{
 			this->model.Draw(matrix, lights);
 		}
@@ -32,8 +32,8 @@ namespace aura
 	public:
 		std::vector<Object> objects;
 		std::unordered_map<std::string, gloom::Model> models;
-		std::unordered_map<std::string, gloom::Light> lights;
-		std::unordered_map<std::string, gloom::Camera> cameras;
+		std::vector<gloom::Light> lights;
+		std::vector<gloom::Camera> cameras;
 		void Draw()
 		{
 			for (int i = 0; i < objects.size(); i++)
@@ -49,25 +49,13 @@ namespace aura
 		{
 			models[key] = model;
 		}
-		void RemoveModel(std::string key)
+		void AddLight(gloom::Light light)
 		{
-			models.erase(key);
+			lights.push_back(light);
 		}
-		void AddLight(std::string key, gloom::Light light)
+		void AddCamera(gloom::Camera camera)
 		{
-			lights[key] = light;
-		}
-		void RemoveLight(std::string key)
-		{
-			lights.erase(key);
-		}
-		void AddCamera(std::string key, gloom::Camera camera)
-		{
-			cameras[key] = camera;
-		}
-		void RemoveCamera(std::string key)
-		{
-			cameras.erase(key);
+			cameras.push_back(camera);
 		}
 	};
 
