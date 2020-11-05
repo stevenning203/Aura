@@ -10,6 +10,7 @@ namespace aura
 	{
 		int id = -1;
 	public:
+		gloom::ModMat modmat;
 		glv3 position = glv3(0.f);
 		glv3 scale = glv3(1.f);
 		std::string name = "Unnamed Object";
@@ -18,7 +19,7 @@ namespace aura
 		{
 			this->model = model_load;
 		}
-		void Draw(gloom::ModMat matrix, std::unordered_map<std::string, gloom::Light> lights)
+		void Draw(gloom::ModMat matrix, std::unordered_map<std::string, gloom::Light> &lights)
 		{
 			this->model.Draw(matrix, lights);
 		}
@@ -40,7 +41,7 @@ namespace aura
 				Object& ref = objects[i];
 				if (ref.model.IsEnabled())
 				{
-					ref.model.Draw(ref.model.matrix, lights);
+					ref.model.Draw(objects[i].modmat, lights);
 				}
 			}
 		}

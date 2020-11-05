@@ -45,7 +45,7 @@ namespace buffers
 
 int main()
 {
-	gloom::Init(1920, 1080, "Aura");
+	GLFWwindow *ptr = gloom::Init(1920, 1080, "Aura");
 	gloom::Model backpack("models/backpack/backpack.obj");
 	gloom::Model light_source("models/lightsource_placeholder/light_source.obj", false);
 
@@ -62,7 +62,6 @@ int main()
 	main_scene.AddCamera("main", main_camera);
 	main_scene.AddLight("hello", lights["hello"]);
 	main_scene.AddLight("bobby", gloom::Light(glv3(0.3f, 0.9f, 0.f), glv3(0, 0, -1.f), glv3(1.f, 1.f, 1.f), glv3(2.f, 2.f, 2.f)));
-	main_scene.models["backpack"].matrix.XYZ(glv3(2.f, -1.5f, 0.f));
 
 	aura::SetActiveScene(&main_scene);
 
@@ -227,9 +226,11 @@ int main()
 				{
 					if (ImGui::TreeNode((aura::active_scene->objects[i].name + std::to_string(i)).c_str()))
 					{
-						ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1);
-						ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1);
-						ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1);
+						if (ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1) || ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1) || ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1))
+						{
+							aura::active_scene->objects[i].modmat.Reset();
+							aura::active_scene->objects[i].modmat.XYZ(glv3(aura::active_scene->objects[i].position));
+						}
 						ImGui::InputFloat("X Scale", &(aura::active_scene->objects[i].scale.x), 1, 1);
 						ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1);
 						ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1);

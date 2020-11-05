@@ -187,7 +187,7 @@ namespace gloom
 		std::vector<Texture>      textures;
 
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources);
+		void Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources);
 	private:
 		unsigned int VAO, VBO, EBO;
 		void SetupMesh();
@@ -196,12 +196,11 @@ namespace gloom
 	class Model
 	{
 	public:
-		ModMat matrix;
 		Model(const char* path = "IRP", bool flip_uvs = true)
 		{
 			LoadModel(path, flip_uvs);
 		}
-		void Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources);
+		void Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources);
 		bool Valid();
 		void Enable();
 		void Disable();
@@ -262,7 +261,7 @@ namespace gloom
 
 	unsigned int ShaderInit(const char* path);
 
-	void Init(int window_width, int window_height, const char* window_name, bool fullscreen = NULL);
+	GLFWwindow* Init(int window_width, int window_height, const char* window_name, bool fullscreen = NULL);
 
 	void SetFieldOfView(float deg);
 
@@ -351,10 +350,10 @@ double gloom::GetTime()
 
 void gloom::ClearBuffer()
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void gloom::ForceLowInput()
@@ -426,10 +425,10 @@ bool gloom::Model::IsEnabled()
 	return enabled;
 }
 
-void gloom::Model::Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources)
+void gloom::Model::Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources)
 {
 	for (int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(this->matrix, light_sources);
+		meshes[i].Draw(mod, light_sources);
 }
 
 void gloom::Model::LoadModel(std::string path, bool flip_uvs)
@@ -613,7 +612,7 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 	current_camera = camera_set;
 }
 
-void gloom::Mesh::Draw(ModMat mod, std::unordered_map<std::string, Light> light_sources)
+void gloom::Mesh::Draw(ModMat mod, std::unordered_map<std::string, Light> &light_sources)
 {
 	int diffuseNr = 1;
 	int specularNr = 1;
@@ -831,7 +830,7 @@ unsigned int gloom::ShaderInit(const char* path) {
 	return ProgramID;
 }
 
-void gloom::Init(int window_width, int window_height, const char* window_name, bool fullscreen)
+GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_name, bool fullscreen)
 {
 	stbi_set_flip_vertically_on_load(1);
 	std::srand((unsigned)time(0));
@@ -895,6 +894,7 @@ void gloom::Init(int window_width, int window_height, const char* window_name, b
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glfwSetCursorPosCallback(local_window, CursorPosCallback);
+	return local_window;
 }
 
 void gloom::SetFieldOfView(float deg)
