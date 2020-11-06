@@ -10,6 +10,9 @@ namespace aura
 	{
 		int id = -1;
 	public:
+		gloom::ModMat translation;
+		gloom::ModMat rotation;
+		gloom::ModMat scaling;
 		gloom::ModMat modmat;
 		glv3 position = glv3(0.f);
 		glv3 scale = glv3(1.f);
@@ -23,6 +26,10 @@ namespace aura
 		{
 			this->model.Draw(matrix, lights);
 		}
+		void MergeMat()
+		{
+			modmat.Set(translation.Get() * rotation.Get() * scaling.Get());
+		}
 	};
 	class Scene
 	{
@@ -31,7 +38,6 @@ namespace aura
 		std::vector<gloom::Camera> cameras_vector;
 	public:
 		std::vector<Object> objects;
-		std::unordered_map<std::string, gloom::Model> models;
 		std::vector<gloom::Light> lights;
 		std::vector<gloom::Camera> cameras;
 		void Draw()
@@ -44,10 +50,6 @@ namespace aura
 					ref.model.Draw(objects[i].modmat, lights);
 				}
 			}
-		}
-		void AddModel(std::string key, gloom::Model model)
-		{
-			models[key] = model;
 		}
 		void AddLight(gloom::Light light)
 		{

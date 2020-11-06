@@ -155,6 +155,10 @@ int main()
 					}
 					ImGui::EndMenu();
 				}
+				if (ImGui::Button("|> / ||"))
+				{
+
+				}
 				ImGui::EndMainMenuBar();
 			}
 			if (state::new_file_menu_open)
@@ -227,12 +231,16 @@ int main()
 					{
 						if (ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1) || ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1) || ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1))
 						{
-							aura::active_scene->objects[i].modmat.Reset();
-							aura::active_scene->objects[i].modmat.XYZ(glv3(aura::active_scene->objects[i].position));
+							aura::active_scene->objects[i].translation.Reset();
+							aura::active_scene->objects[i].translation.XYZ(glv3(aura::active_scene->objects[i].position));
+							aura::active_scene->objects[i].MergeMat();
 						}
-						ImGui::InputFloat("X Scale", &(aura::active_scene->objects[i].scale.x), 1, 1);
-						ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1);
-						ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1);
+						if (ImGui::InputFloat("X Scale", &(aura::active_scene->objects[i].scale.x), 1, 1) || ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1) || ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1))
+						{
+							aura::active_scene->objects[i].scaling.Reset();
+							aura::active_scene->objects[i].scaling.Scale(glv3(aura::active_scene->objects[i].scale));
+							aura::active_scene->objects[i].MergeMat();
+						}
 						if (ImGui::Button("Delete Object"))
 						{
 							aura::active_scene->objects.erase(aura::active_scene->objects.begin() + i);
