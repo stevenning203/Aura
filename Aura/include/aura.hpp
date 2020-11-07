@@ -2,6 +2,10 @@
 
 namespace aura
 {
+	enum class AuraParse
+	{
+		k_object, k_light, k_camera, k_script
+	};
 	class Player
 	{
 		

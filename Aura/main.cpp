@@ -184,9 +184,30 @@ int main()
 				{
 					std::string line;
 					std::fstream file(buffers::project_location);
+					int ln = 1;
+					aura::AuraParse mode;
 					while (std::getline(file, line))
 					{
-						break;
+						if (line.find("[begin:a^f]"))
+						{
+							if (!ln)
+							{
+								break;
+							}
+						}
+						if (line.find("[region:objects]"))
+						{
+							mode = aura::AuraParse::k_object;
+						}
+						if (line.find("[region:lights"))
+						{
+							mode = aura::AuraParse::k_light;
+						}
+						if (line.find("[region:scripts"))
+						{
+							mode = aura::AuraParse::k_script;
+						}
+						ln++;
 					}
 					state::open_file_menu_open = false;
 				}
@@ -236,6 +257,10 @@ int main()
 						if (ImGui::InputInt("Light Colour HEX 0x", &buffers::light_color_buffer, 1, 1))
 						{
 							
+						}
+						if (ImGui::InputFloat("Light Position", nullptr, 1, 1))
+						{
+
 						}
 						ImGui::TreePop();
 					}
