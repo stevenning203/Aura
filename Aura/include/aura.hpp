@@ -12,7 +12,6 @@ namespace aura
 	};
 	class Object
 	{
-		int id = -1;
 	public:
 		gloom::ModMat translation;
 		gloom::ModMat rotation;
@@ -20,6 +19,7 @@ namespace aura
 		gloom::ModMat modmat;
 		glv3 position = glv3(0.f);
 		glv3 scale = glv3(1.f);
+		glv3 rot = glv3(0.f);
 		std::string name = "Unnamed Object";
 		gloom::Model model;
 		Object(gloom::Model model_load)
@@ -41,9 +41,14 @@ namespace aura
 		std::vector<gloom::Light> lights_vector;
 		std::vector<gloom::Camera> cameras_vector;
 	public:
+		std::string name;
 		std::vector<Object> objects;
 		std::vector<gloom::Light> lights;
 		std::vector<gloom::Camera> cameras;
+		Scene(const char* label)
+		{
+			this->name = label;
+		}
 		void Draw()
 		{
 			for (int i = 0; i < objects.size(); i++)

@@ -1,13 +1,5 @@
 #include "aura.hpp"
 
-namespace console
-{
-	void Parse(char* input)
-	{
-
-	}
-}
-
 namespace state
 {
 	bool saved = false;
@@ -19,10 +11,10 @@ namespace state
 	bool console_open = true;
 	bool load_models_menu_open = false;
 	bool load_models_error_popup_open = false;
-	bool objects_menu_open = false;
+	bool objects_menu_open = true;
 	bool scenes_menu_open = false;
 	bool context_editor_open = true;
-	bool lights_menu_open = false;
+	bool lights_menu_open = true;
 }
 
 namespace buffers
@@ -34,8 +26,7 @@ namespace buffers
 	char console_input[k_char_input_max];
 	char model_name[k_char_input_max];
 	char model_location[k_char_input_max];
-
-	int light_color_buffer = 0;
+	char scene_name[k_char_input_max];
 
 	bool flip_uvs = true;
 
@@ -45,22 +36,39 @@ namespace buffers
 	}
 }
 
+namespace console
+{
+	void Parse(char* input)
+	{
+		std::string str_input = std::string(input);
+		if (str_input.substr(0, 7) == "menu : ")
+		{
+			if (str_input.substr(7, 6) == "lights")
+			{
+				state::lights_menu_open = true;
+			}
+			if (str_input.substr(7, 7) == "objects")
+			{
+				state::objects_menu_open = true;
+			}
+		}
+	}
+}
+
 int main()
 {
 	gloom::Init(1920, 1080, "Aura");
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
-	std::vector<gloom::Light> lights(5);
-	lights[0].color = glv3(1.f, 0.f, 1.f);
+	std::vector<aura::Scene> scenes;
 	
-	aura::Scene main_scene;
+	aura::Scene main_scene("Main");
 	gloom::Camera main_camera;
 	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
 
 	main_scene.AddCamera(main_camera);
-	main_scene.AddLight(lights[0]);
 
 	aura::SetActiveScene(&main_scene);
 
@@ -219,7 +227,9 @@ int main()
 			}
 			if (state::save_file_menu_open)
 			{
+				ImGui::Begin("Save");
 
+				ImGui::End();
 			}
 			if (state::models_menu_open)
 			{
@@ -246,19 +256,29 @@ int main()
 				{
 					state::lights_menu_open = false;
 				}
+				if (ImGui::Button("Add Light"))
+				{
+					aura::active_scene->lights.push_back(gloom::Light());
+				}
 				for (int i = 0; i < aura::active_scene->lights.size(); i++)
 				{
-					if (ImGui::TreeNode("Light" + i))
+					if (ImGui::TreeNode("Light " + i))
 					{
-						if (ImGui::InputFloat("Light Attenuation", &aura::active_scene->lights[i].attenuation[0], 1, 1))
+						if (ImGui::InputFloat("Light Attenuation", &aura::active_scene->lights[i].attenuation[0]))
 						{
 
 						}
-						if (ImGui::InputInt("Light Colour HEX 0x", &buffers::light_color_buffer, 1, 1))
+						ImGui::InputFloat("Light Colour Normalized R", &aura::active_scene->lights[i].color[0]);
+						ImGui::InputFloat("Light Colour Normalized G", &aura::active_scene->lights[i].color[1]);
+						ImGui::InputFloat("Light Colour Normalized B", &aura::active_scene->lights[i].color[2]);
 						{
 							
 						}
-						if (ImGui::InputFloat("Light Position", nullptr, 1, 1))
+						if (ImGui::InputFloat("Light Position X", &aura::active_scene->lights[i].position[0]) || ImGui::InputFloat("Light Position Y", &aura::active_scene->lights[i].position[1]) || ImGui::InputFloat("Light Position Z", &aura::active_scene->lights[i].position[2]))
+						{
+
+						}
+						if (ImGui::InputFloat("Light Direction X", &aura::active_scene->lights[i].direction[0]) || ImGui::InputFloat("Light Direction Y", &aura::active_scene->lights[i].direction[1]) || ImGui::InputFloat("Light Direction Z", &aura::active_scene->lights[i].direction[2]))
 						{
 
 						}
@@ -284,11 +304,15 @@ int main()
 							aura::active_scene->objects[i].translation.XYZ(glv3(aura::active_scene->objects[i].position));
 							aura::active_scene->objects[i].MergeMat();
 						}
-						if (ImGui::InputFloat("X Scale", &(aura::active_scene->objects[i].scale.x), 1, 1) || ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1) || ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1))
+						if (ImGui::InputFloat("X Scale", &aura::active_scene->objects[i].scale.x, 1, 1) || ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1) || ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1))
 						{
 							aura::active_scene->objects[i].scaling.Reset();
 							aura::active_scene->objects[i].scaling.Scale(glv3(aura::active_scene->objects[i].scale));
 							aura::active_scene->objects[i].MergeMat();
+						}
+						if (ImGui::InputFloat("X rotation", &aura::active_scene->objects[i].rot[0], 1, 1))
+						{
+
 						}
 						if (ImGui::Button("Delete Object"))
 						{
@@ -324,6 +348,25 @@ int main()
 				if (ImGui::Button("Close"))
 				{
 					state::load_models_menu_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::scenes_menu_open)
+			{
+				ImGui::Begin("Scenes");
+				ImGui::InputText("Scene Name", buffers::scene_name, buffers::k_char_input_max);
+				if (ImGui::Button("Add Scene"))
+				{
+					scenes.push_back(aura::Scene(buffers::scene_name));
+				}
+				for (int i = 0; i < scenes.size(); i++)
+				{
+					ImGui::TreeNode(scenes[i].name.c_str());
+					if (ImGui::Button("Set As Active"))
+					{
+						aura::SetActiveScene(&scenes[i]);
+					}
+					ImGui::TreePop();
 				}
 				ImGui::End();
 			}
