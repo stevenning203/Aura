@@ -35,6 +35,8 @@ namespace buffers
 	char model_name[k_char_input_max];
 	char model_location[k_char_input_max];
 
+	int light_color_buffer = 0;
+
 	bool flip_uvs = true;
 
 	void Clear(char* buffer)
@@ -45,9 +47,7 @@ namespace buffers
 
 int main()
 {
-	GLFWwindow *ptr = gloom::Init(1920, 1080, "Aura");
-	gloom::Model backpack("models/backpack/backpack.obj");
-	gloom::Model light_source("models/lightsource_placeholder/light_source.obj", false);
+	gloom::Init(1920, 1080, "Aura");
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
@@ -214,6 +214,30 @@ int main()
 					if (ImGui::Button(model_names[i].c_str()))
 					{
 						aura::active_scene->objects.push_back(aura::Object(models[i]));
+					}
+				}
+				ImGui::End();
+			}
+			if (state::lights_menu_open)
+			{
+				ImGui::Begin("Lights");
+				if (ImGui::Button("Close"))
+				{
+					state::lights_menu_open = false;
+				}
+				for (int i = 0; i < aura::active_scene->lights.size(); i++)
+				{
+					if (ImGui::TreeNode("Light" + i))
+					{
+						if (ImGui::InputFloat("Light Attenuation", &aura::active_scene->lights[i].attenuation[0], 1, 1))
+						{
+
+						}
+						if (ImGui::InputInt("Light Colour HEX 0x", &buffers::light_color_buffer, 1, 1))
+						{
+							
+						}
+						ImGui::TreePop();
 					}
 				}
 				ImGui::End();
