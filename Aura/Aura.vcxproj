@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="include\aura.hpp" />
     <ClInclude Include="include\gloom.hpp" />
+    <ClInclude Include="include\script.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.shader" />

@@ -165,7 +165,7 @@ int main()
 				}
 				if (ImGui::Button("|> / ||"))
 				{
-
+					gloom::SetMouseMode(gloom::Gloonum::GLO_MOUSE_MODE_HIDE);
 				}
 				ImGui::EndMainMenuBar();
 			}

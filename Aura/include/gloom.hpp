@@ -1,7 +1,9 @@
 #ifndef GLOOM_IMPORTED
 #define GLOOM_IMPORTED
 #define STB_IMAGE_IMPLEMENTATION
-#define k_max_n_lights 100
+//#define k_max_n_lights 100
+
+constexpr int k_max_n_lights = 100;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -244,6 +246,8 @@ namespace gloom
 
 	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
 	
+	float time0 = 0, time1 = 0;
+	
 	void SetCurrentCamera(Camera* camera_set);
 
 	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
@@ -300,7 +304,24 @@ namespace gloom
 
 	void WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources);
 
+	void CameraBegin();
+
+	void CameraEnd();
+
 	Camera * GetCurrentCamera();
+}
+
+void gloom::CameraBegin()
+{
+	time0 = time1;
+	time1 = GetTime();
+	float delta_time = time1 - time0;
+	SetMousePos((float)window.width / 2, (float)window.height / 2);
+}
+
+void gloom::CameraEnd()
+{
+
 }
 
 void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources)
@@ -744,9 +765,12 @@ void gloom::ForceExit()
 	gloom::force_exit = true;
 }
 
-void gloom::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
+void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int height)
 {
+	window.width = width;
+	window.height = height;
 	glViewport(0, 0, width, height);
+	perspective_matrix.Set(glm::perspective(90.f, (float)width / (float)height, 0.1f, 100.f));
 }
 
 void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
