@@ -46,6 +46,7 @@ namespace gloom
 	class Camera
 	{
 	private:
+		float fov = 90.f;
 		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 trg = glm::vec3(0.f, 0.f, 0.f);
 		glm::mat4 view_matrix = glm::mat4(1.0f);
@@ -224,6 +225,8 @@ namespace gloom
 		int height = 0;
 	};
 
+	float field_of_view = 90.f;
+
 	bool force_exit = false;
 
 	unsigned int shader;
@@ -246,7 +249,12 @@ namespace gloom
 
 	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
 	
-	float time0 = 0, time1 = 0;
+	float time0 = 0, time1 = 0, time2 = 0;
+
+	float camera_sensitivity = 0.1f;
+
+	float pitch = 0.f;
+	float yaw = -90.f;
 	
 	void SetCurrentCamera(Camera* camera_set);
 
@@ -315,13 +323,22 @@ void gloom::CameraBegin()
 {
 	time0 = time1;
 	time1 = GetTime();
-	float delta_time = time1 - time0;
-	SetMousePos((float)window.width / 2, (float)window.height / 2);
+	time2 = time1 - time0;
+	int delta_x = mouse_x - window.width / 2;
+	int delta_y = window.width / 2 - mouse_y;
+	delta_x *= camera_sensitivity;
+	delta_y *= camera_sensitivity;
+	yaw += delta_x;
+	pitch += delta_y;
+	glv3 direction;
+	direction.x = cos(glm::radians(yaw) * cos(glm::radians(pitch)));
+	direction.z = sin(glm::radians(yaw) * cos(glm::radians(pitch)));
+	direction.y = sin(glm::radians(pitch));
 }
 
 void gloom::CameraEnd()
 {
-
+	SetMousePos((float)window.width / 2, (float)window.height / 2);
 }
 
 void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources)
@@ -770,7 +787,7 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int heigh
 	window.width = width;
 	window.height = height;
 	glViewport(0, 0, width, height);
-	perspective_matrix.Set(glm::perspective(90.f, (float)width / (float)height, 0.1f, 100.f));
+	perspective_matrix.Set(glm::perspective(field_of_view, (float)width / (float)height, 0.1f, 100.f));
 }
 
 void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
@@ -922,7 +939,8 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 
 void gloom::SetFieldOfView(float deg)
 {
-	perspective_matrix.Set(glm::perspective(glm::radians(deg), (float)window.width / (float)window.height, 0.1f, 150.f));
+	field_of_view = glm::radians(deg);
+	perspective_matrix.Set(glm::perspective(field_of_view, (float)window.width / (float)window.height, 0.1f, 100.f));
 }
 
 gloom::Camera * gloom::GetCurrentCamera()

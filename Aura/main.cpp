@@ -15,6 +15,7 @@ namespace state
 	bool scenes_menu_open = false;
 	bool context_editor_open = true;
 	bool lights_menu_open = true;
+	bool simulate = false;
 }
 
 namespace buffers
@@ -76,9 +77,16 @@ int main()
 
 	while (!gloom::QueueExit())
 	{	
-
 		gloom::ClearBuffer();
 		//render
+		if (state::simulate)
+		{
+			if (gloom::GetKey(GLFW_KEY_ESCAPE))
+			{
+				state::simulate = false;
+			}
+			gloom::CameraBegin();
+		}
 		aura::active_scene->Draw();
 		{
 			if (ImGui::BeginMainMenuBar())
@@ -166,6 +174,7 @@ int main()
 				if (ImGui::Button("|> / ||"))
 				{
 					gloom::SetMouseMode(gloom::Gloonum::GLO_MOUSE_MODE_HIDE);
+					state::simulate = true;
 				}
 				ImGui::EndMainMenuBar();
 			}
@@ -272,7 +281,7 @@ int main()
 						ImGui::InputFloat("Light Colour Normalized G", &aura::active_scene->lights[i].color[1]);
 						ImGui::InputFloat("Light Colour Normalized B", &aura::active_scene->lights[i].color[2]);
 						{
-							
+
 						}
 						if (ImGui::InputFloat("Light Position X", &aura::active_scene->lights[i].position[0]) || ImGui::InputFloat("Light Position Y", &aura::active_scene->lights[i].position[1]) || ImGui::InputFloat("Light Position Z", &aura::active_scene->lights[i].position[2]))
 						{
@@ -399,6 +408,10 @@ int main()
 			}
 		}
 		//endrender
+		if (state::simulate)
+		{
+			gloom::CameraEnd();
+		}
 		gloom::FlipDisplay();
 		gloom::Poll();
 	}

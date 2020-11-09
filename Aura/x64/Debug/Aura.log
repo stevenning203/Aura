@@ -1,4 +1,8 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(317,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(663,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(325,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(329,31): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(330,31): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(341,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(341,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(680,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe
