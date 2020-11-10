@@ -45,7 +45,7 @@ namespace aura
 		std::vector<Object> objects;
 		std::vector<gloom::Light> lights;
 		std::vector<gloom::Camera> cameras;
-		Scene(const char* label)
+		Scene(const char* label = "Unnamed Scene")
 		{
 			this->name = label;
 		}
@@ -76,4 +76,28 @@ namespace aura
 	{
 		active_scene = scene;
 	}
+
+	class SnapShot
+	{
+		Scene snapshot;
+		Scene& reference;
+	public:
+		SnapShot(Scene set)
+		{
+			this->snapshot = set;
+			this->reference = set;
+		}
+		void Restore();
+		void Set(Scene snapshot);
+	};
+}
+
+void aura::SnapShot::Set(Scene snapshot)
+{
+	this->snapshot = snapshot;
+}
+
+void aura::SnapShot::Restore()
+{
+	reference = snapshot;
 }

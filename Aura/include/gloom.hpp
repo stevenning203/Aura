@@ -57,6 +57,10 @@ namespace gloom
 			this->pos = pos;
 			this->view_matrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
 		}
+		glv3 GetPos()
+		{
+			return pos;
+		}
 		void SetTrg(glm::vec3 target)
 		{
 			this->trg = target;
@@ -324,16 +328,27 @@ void gloom::CameraBegin()
 	time0 = time1;
 	time1 = GetTime();
 	time2 = time1 - time0;
-	int delta_x = mouse_x - window.width / 2;
-	int delta_y = window.width / 2 - mouse_y;
+	float delta_x = window.width / 2 - mouse_x;
+	float delta_y = window.height / 2 - mouse_y;
 	delta_x *= camera_sensitivity;
 	delta_y *= camera_sensitivity;
+	std::cout << delta_x << " " << delta_y << std::endl;
 	yaw += delta_x;
 	pitch += delta_y;
+	if (pitch > 89.9f)
+	{
+		pitch = 89.9f;
+	}
+	if (pitch < -89.9f)
+	{
+		pitch = -89.9f;
+	}
 	glv3 direction;
-	direction.x = cos(glm::radians(yaw) * cos(glm::radians(pitch)));
-	direction.z = sin(glm::radians(yaw) * cos(glm::radians(pitch)));
+	direction.x = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 	direction.y = sin(glm::radians(pitch));
+	direction.z = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	direction = glm::normalize(direction);
+	current_camera->SetTrg(current_camera->GetPos() + direction);
 }
 
 void gloom::CameraEnd()

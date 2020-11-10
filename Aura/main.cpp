@@ -58,13 +58,14 @@ namespace console
 
 int main()
 {
-	gloom::Init(1920, 1080, "Aura");
+	GLFWwindow *ptr = gloom::Init(1920, 1080, "Aura");
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::vector<aura::Scene> scenes;
 	
 	aura::Scene main_scene("Main");
+	aura::SnapShot snapshot(main_scene);
 	gloom::Camera main_camera;
 	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
@@ -75,6 +76,9 @@ int main()
 
 	gloom::SetClearColor(0.65f, 0.5f, 0.65f);
 
+	strcpy_s(buffers::model_location, "models/backpack/backpack.obj");
+	strcpy_s(buffers::model_name, "backpack");
+	glfwSetInputMode(ptr, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	while (!gloom::QueueExit())
 	{	
 		gloom::ClearBuffer();
@@ -84,6 +88,7 @@ int main()
 			if (gloom::GetKey(GLFW_KEY_ESCAPE))
 			{
 				state::simulate = false;
+				snapshot.Restore();
 			}
 			gloom::CameraBegin();
 		}
@@ -173,8 +178,8 @@ int main()
 				}
 				if (ImGui::Button("|> / ||"))
 				{
-					gloom::SetMouseMode(gloom::Gloonum::GLO_MOUSE_MODE_HIDE);
 					state::simulate = true;
+					snapshot.Set(main_scene);
 				}
 				ImGui::EndMainMenuBar();
 			}
