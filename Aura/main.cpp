@@ -65,7 +65,8 @@ int main()
 	std::vector<aura::Scene> scenes;
 	
 	aura::Scene main_scene("Main");
-	aura::SnapShot snapshot(main_scene);
+	aura::Scene* scene_ptr = &main_scene;
+	aura::SnapShot snapshot(&main_scene);
 	gloom::Camera main_camera;
 	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
@@ -178,8 +179,8 @@ int main()
 				}
 				if (ImGui::Button("|> / ||"))
 				{
-					state::simulate = true;
 					snapshot.Set(main_scene);
+					state::simulate = true;
 				}
 				ImGui::EndMainMenuBar();
 			}

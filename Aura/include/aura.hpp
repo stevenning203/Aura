@@ -79,13 +79,13 @@ namespace aura
 
 	class SnapShot
 	{
+		Scene* scene_pointer;
 		Scene snapshot;
-		Scene& reference;
 	public:
-		SnapShot(Scene set)
+		SnapShot(Scene* set)
 		{
-			this->snapshot = set;
-			this->reference = set;
+			this->scene_pointer = set;
+			this->snapshot = *set;
 		}
 		void Restore();
 		void Set(Scene snapshot);
@@ -99,5 +99,5 @@ void aura::SnapShot::Set(Scene snapshot)
 
 void aura::SnapShot::Restore()
 {
-	reference = snapshot;
+	*(this->scene_pointer) = snapshot;
 }
