@@ -34,6 +34,7 @@ constexpr int k_max_n_lights = 100;
 
 typedef glm::vec3 glv3;
 typedef glm::mat4 glm4;
+typedef glm::vec2 glv2;
 
 namespace gloom
 {
@@ -259,8 +260,16 @@ namespace gloom
 
 	float pitch = 0.f;
 	float yaw = -90.f;
+
+	bool mouse_button_left_down, mouse_button_right_down, mouse_button_middle_down;
+
+	bool mouse_button_left_up, mouse_button_right_up, mouse_button_middle_up;
+
+	bool mouse_button_left_held, mouse_button_right_held, mouse_button_middle_held;
 	
 	void SetCurrentCamera(Camera* camera_set);
+
+	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mode);
 
 	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 
@@ -332,7 +341,6 @@ void gloom::CameraBegin()
 	float delta_y = window.height / 2 - mouse_y;
 	delta_x *= camera_sensitivity;
 	delta_y *= camera_sensitivity;
-	std::cout << delta_x << " " << delta_y << std::endl;
 	yaw += delta_x;
 	pitch += delta_y;
 	if (pitch > 89.9f)
@@ -452,6 +460,11 @@ bool gloom::QueueExit()
 
 void gloom::FlipDisplay()
 {
+	mouse_button_left_down = 0;
+	mouse_button_right_down = 0;
+	mouse_button_middle_down = 0;
+	mouse_button_left_up = 0;
+	mouse_button_right_up = 0;
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(local_window);
@@ -797,6 +810,35 @@ void gloom::ForceExit()
 	gloom::force_exit = true;
 }
 
+void gloom::MouseButtonCallback(GLFWwindow * window, int button, int action, int mode)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && GLFW_PRESS)
+	{
+		mouse_button_left_down = 1;
+		mouse_button_left_held = 1;
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && GLFW_PRESS)
+	{
+		mouse_button_right_down = 1;
+		mouse_button_right_held = 1;
+	}
+	if (button == GLFW_MOUSE_BUTTON_MIDDLE && GLFW_PRESS)
+	{
+		mouse_button_middle_down = 1;
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && GLFW_RELEASE)
+	{
+		mouse_button_left_up = 1;
+		mouse_button_left_held = 0;
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && GLFW_RELEASE)
+	{
+		std::cout << "hello" << std::endl;
+		mouse_button_right_up = 1;
+		mouse_button_right_held = 0;
+	}
+}
+
 void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int height)
 {
 	window.width = width;
@@ -924,6 +966,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	ImGui_ImplOpenGL3_Init("#version 430 core");
 	glViewport(0, 0, width, height);
 	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
+	glfwSetMouseButtonCallback(local_window, MouseButtonCallback);
 	shader = ShaderInit("res/shaders/basic.shader");
 	glUseProgram(shader);
 	matrix_model_location.val = glGetUniformLocation(shader, "matrix_model");

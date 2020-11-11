@@ -79,7 +79,6 @@ int main()
 
 	strcpy_s(buffers::model_location, "models/backpack/backpack.obj");
 	strcpy_s(buffers::model_name, "backpack");
-	glfwSetInputMode(ptr, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	while (!gloom::QueueExit())
 	{	
 		gloom::ClearBuffer();
@@ -91,7 +90,8 @@ int main()
 				state::simulate = false;
 				snapshot.Restore();
 			}
-			gloom::CameraBegin();
+			if (gloom::mouse_button_right_held)
+				gloom::CameraBegin();
 		}
 		aura::active_scene->Draw();
 		{

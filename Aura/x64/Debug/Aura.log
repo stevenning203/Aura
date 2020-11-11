@@ -1,8 +1,8 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(329,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(331,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(332,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(356,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(356,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(695,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(338,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(340,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(341,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(365,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(365,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(709,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe
