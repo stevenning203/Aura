@@ -4,6 +4,7 @@
 //#define k_max_n_lights 100
 
 constexpr int k_max_n_lights = 100;
+constexpr float pi = 3.1415926f;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -256,7 +257,8 @@ namespace gloom
 	
 	float time0 = 0, time1 = 0, time2 = 0;
 
-	float camera_sensitivity = 0.1f;
+	float camera_sensitivity = 0.2f;
+	float camera_speed = 5.f;
 
 	float pitch = 0.f;
 	float yaw = -90.f;
@@ -356,6 +358,27 @@ void gloom::CameraBegin()
 	direction.y = sin(glm::radians(pitch));
 	direction.z = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	direction = glm::normalize(direction);
+	glv3 right = glv3(sin(glm::radians(yaw) - pi / 2.0f), 0, cos(glm::radians(yaw) - pi / 2.0f));
+	if (GetKey(GLFW_KEY_W))
+	{
+		current_camera->SetPos(current_camera->GetPos() + camera_speed * direction * time2);
+	}
+	if (GetKey(GLFW_KEY_S))
+	{
+		current_camera->SetPos(current_camera->GetPos() - camera_speed * direction * time2);
+	}
+	if (GetKey(GLFW_KEY_A))
+	{
+		current_camera->SetPos(current_camera->GetPos() - camera_speed * right * time2);
+	}
+	if (GetKey(GLFW_KEY_D))
+	{
+		current_camera->SetPos(current_camera->GetPos() + camera_speed * right * time2);
+	}
+	if (GetKey(GLFW_KEY_SPACE))
+	{
+		current_camera->SetPos(current_camera->GetPos() + glv3(0.f, camera_speed * time2, 0.f));
+	}
 	current_camera->SetTrg(current_camera->GetPos() + direction);
 }
 
@@ -812,28 +835,27 @@ void gloom::ForceExit()
 
 void gloom::MouseButtonCallback(GLFWwindow * window, int button, int action, int mode)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		mouse_button_left_down = 1;
 		mouse_button_left_held = 1;
 	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 	{
 		mouse_button_right_down = 1;
 		mouse_button_right_held = 1;
 	}
-	if (button == GLFW_MOUSE_BUTTON_MIDDLE && GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS)
 	{
 		mouse_button_middle_down = 1;
 	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && GLFW_RELEASE)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
 		mouse_button_left_up = 1;
 		mouse_button_left_held = 0;
 	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && GLFW_RELEASE)
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
 	{
-		std::cout << "hello" << std::endl;
 		mouse_button_right_up = 1;
 		mouse_button_right_held = 0;
 	}

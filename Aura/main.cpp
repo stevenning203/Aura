@@ -15,7 +15,6 @@ namespace state
 	bool scenes_menu_open = false;
 	bool context_editor_open = true;
 	bool lights_menu_open = true;
-	bool simulate = false;
 }
 
 namespace buffers
@@ -80,19 +79,11 @@ int main()
 	strcpy_s(buffers::model_location, "models/backpack/backpack.obj");
 	strcpy_s(buffers::model_name, "backpack");
 	while (!gloom::QueueExit())
-	{	
+	{
 		gloom::ClearBuffer();
 		//render
-		if (state::simulate)
-		{
-			if (gloom::GetKey(GLFW_KEY_ESCAPE))
-			{
-				state::simulate = false;
-				snapshot.Restore();
-			}
-			if (gloom::mouse_button_right_held)
-				gloom::CameraBegin();
-		}
+		if (gloom::mouse_button_right_held)
+			gloom::CameraBegin();
 		aura::active_scene->Draw();
 		{
 			if (ImGui::BeginMainMenuBar())
@@ -180,7 +171,6 @@ int main()
 				if (ImGui::Button("|> / ||"))
 				{
 					snapshot.Set(main_scene);
-					state::simulate = true;
 				}
 				ImGui::EndMainMenuBar();
 			}
@@ -414,7 +404,7 @@ int main()
 			}
 		}
 		//endrender
-		if (state::simulate)
+		if (gloom::mouse_button_right_held)
 		{
 			gloom::CameraEnd();
 		}
