@@ -15,6 +15,7 @@ namespace state
 	bool scenes_menu_open = false;
 	bool context_editor_open = true;
 	bool lights_menu_open = true;
+	bool scripts_menu_open = false;
 }
 
 namespace buffers
@@ -120,6 +121,10 @@ int main()
 						{
 							state::context_editor_open = true;
 						}
+						if (ImGui::MenuItem("Scripts"))
+						{
+							state::scripts_menu_open = true;
+						}
 						if (ImGui::MenuItem("Models"))
 						{
 							state::models_menu_open = true;
@@ -168,7 +173,7 @@ int main()
 					}
 					ImGui::EndMenu();
 				}
-				if (ImGui::Button("|> / ||"))
+				if (ImGui::Button("|>"))
 				{
 					snapshot.Set(main_scene);
 				}
