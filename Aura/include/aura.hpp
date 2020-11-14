@@ -15,7 +15,7 @@ namespace aura
 	public:
 		Script(std::string &path)
 		{
-
+			this->path = path;
 		}
 		void SetLabel(const char* label)
 		{

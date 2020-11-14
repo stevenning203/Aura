@@ -1,4 +1,4 @@
-#include "aura.hpp"
+#include "scriptspace.hpp"
 
 namespace state
 {
@@ -85,6 +85,7 @@ int main()
 		//render
 		if (gloom::mouse_button_right_held)
 			gloom::CameraBegin();
+		scriptspace::Simulate();
 		aura::active_scene->Draw();
 		{
 			if (ImGui::BeginMainMenuBar())
