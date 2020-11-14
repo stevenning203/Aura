@@ -6,6 +6,30 @@ namespace aura
 	{
 		k_object, k_light, k_camera, k_script
 	};
+	class Script
+	{
+	private:
+		std::string path = "";
+		std::string label = "Unnamed Script";
+		std::string buffer;
+	public:
+		Script(std::string &path)
+		{
+
+		}
+		void SetLabel(const char* label)
+		{
+			this->label = label;
+		}
+		std::string GetLabel()
+		{
+			return label;
+		}
+		std::string GetPath()
+		{
+			return path;
+		}
+	};
 	class Player
 	{
 		
