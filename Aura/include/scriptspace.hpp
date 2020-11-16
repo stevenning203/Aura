@@ -4,6 +4,6 @@ namespace scriptspace
 {
 	void Simulate()
 	{
-
+		scripts::All();
 	}
 }

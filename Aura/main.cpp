@@ -293,6 +293,10 @@ int main()
 						{
 
 						}
+						if (ImGui::Button("Delete Light"))
+						{
+							aura::active_scene->lights.erase(aura::active_scene->lights.begin() + i);
+						}
 						ImGui::TreePop();
 					}
 				}

@@ -2,5 +2,8 @@
 
 namespace scripts
 {
-	void;
+	void All()
+	{
+
+	}
 }

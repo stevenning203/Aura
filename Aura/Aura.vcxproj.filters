@@ -41,10 +41,13 @@
     <ClInclude Include="include\gloom.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\script.hpp">
+    <ClInclude Include="include\definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\definitions.hpp">
+    <ClInclude Include="include\scriptspace.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\scripts.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
