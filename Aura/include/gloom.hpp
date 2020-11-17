@@ -329,13 +329,13 @@ namespace gloom
 
 	void ForceExit();
 
-	void WriteToShader(UniformLocation shader_location, glv3 vector);
+	void WriteToShader(UniformLocation shader_location, glv3 *vector);
 
 	void WriteToShader(UniformLocation shader_location, int integer);
 
 	void WriteToShader(UniformLocation shader_location, float floating_point);
 
-	void WriteToShader(UniformLocation shader_location, glm4 matrix);
+	void WriteToShader(UniformLocation shader_location, glm4 *matrix);
 
 	void WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources);
 
@@ -404,18 +404,18 @@ void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &l
 	int index = 0;
 	for (auto &i : light_sources)
 	{
-		WriteToShader(struct_light_attenuation[index], i.attenuation);
-		WriteToShader(struct_light_location[index], i.position);
-		WriteToShader(struct_light_color[index], i.color);
+		WriteToShader(struct_light_attenuation[index], &i.attenuation);
+		WriteToShader(struct_light_location[index], &i.position);
+		WriteToShader(struct_light_color[index], &i.color);
 		WriteToShader(struct_light_theta[index], i.theta);
-		WriteToShader(struct_light_direction[index], i.direction);
+		WriteToShader(struct_light_direction[index], &i.direction);
 		index++;
 	}
 }
 
-void gloom::WriteToShader(UniformLocation shader_location, glv3 vector)
+void gloom::WriteToShader(UniformLocation shader_location, glv3 *vector)
 {
-	glUniform3fv(shader_location.val, 1, &vector[0]);
+	glUniform3fv(shader_location.val, 1, &((*vector)[0]));
 }
 
 void gloom::WriteToShader(UniformLocation shader_location, int integer)
@@ -428,9 +428,9 @@ void gloom::WriteToShader(UniformLocation shader_location, float floating_point)
 	glUniform1f(shader_location.val, floating_point);
 }
 
-void gloom::WriteToShader(UniformLocation shader_location, glm4 matrix)
+void gloom::WriteToShader(UniformLocation shader_location, glm4 *matrix)
 {
-	glUniformMatrix4fv(shader_location.val, 1, GL_FALSE, &matrix[0][0]);
+	glUniformMatrix4fv(shader_location.val, 1, GL_FALSE, &((*matrix)[0][0]));
 }
 
 void gloom::Poll()
@@ -753,9 +753,9 @@ void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
-	WriteToShader(matrix_projection_location, perspective_matrix.Get());
-	WriteToShader(matrix_model_location, mod.Get());
-	WriteToShader(matrix_view_location, current_camera->GetMatrix());
+	WriteToShader(matrix_projection_location, &perspective_matrix.Get());
+	WriteToShader(matrix_model_location, &mod.Get());
+	WriteToShader(matrix_view_location, &current_camera->GetMatrix());
 	WriteToShader(matrix_view_location, light_sources);
 	WriteToShader(int_n_lights_location, (int)light_sources.size());
 	glBindVertexArray(VAO);
