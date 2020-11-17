@@ -237,6 +237,12 @@ namespace gloom
 	public:
 		int width = 0;
 		int height = 0;
+		glv2 half_point = glv2(0.f);
+		void UpdateHalfPoint()
+		{
+			this->half_point[0] = (int)((float)width / 2.f);
+			this->half_point[1] = (int)((float)height / 2.f);
+		}
 	};
 
 	float field_of_view = 90.f;
@@ -351,8 +357,8 @@ void gloom::CameraBegin()
 	time0 = time1;
 	time1 = GetTime();
 	time2 = time1 - time0;
-	float delta_x = window.width / 2 - mouse_x;
-	float delta_y = window.height / 2 - mouse_y;
+	float delta_x = window.half_point.x - mouse_x;
+	float delta_y = window.half_point.y - mouse_y;
 	if (mouse_button_right_down)
 	{
 		delta_x = 0;
@@ -401,7 +407,7 @@ void gloom::CameraBegin()
 
 void gloom::CameraEnd()
 {
-	SetMousePos((float)window.width / 2, (float)window.height / 2);
+	SetMousePos(window.half_point.x, window.half_point.y);
 }
 
 void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources)
@@ -901,6 +907,7 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int heigh
 {
 	window.width = width;
 	window.height = height;
+	window.UpdateHalfPoint();
 	glViewport(0, 0, width, height);
 	perspective_matrix.Set(glm::perspective(field_of_view, (float)width / (float)height, 0.1f, 100.f));
 }
