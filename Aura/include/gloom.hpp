@@ -353,6 +353,11 @@ void gloom::CameraBegin()
 	time2 = time1 - time0;
 	float delta_x = window.width / 2 - mouse_x;
 	float delta_y = window.height / 2 - mouse_y;
+	if (mouse_button_right_down)
+	{
+		delta_x = 0;
+		delta_y = 0;
+	}
 	delta_x *= camera_sensitivity;
 	delta_y *= camera_sensitivity;
 	yaw += delta_x;
