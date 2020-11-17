@@ -8,7 +8,7 @@ constexpr int k_max_n_diffuse = 10;
 constexpr int k_max_n_specular = 10;
 constexpr int k_max_n_normal = 10;
 constexpr int k_max_n_height = 10;
-constexpr float pi = 3.1415926f;
+constexpr float k_pi = 3.1415926f;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -381,7 +381,7 @@ void gloom::CameraBegin()
 	direction.y = sin(glm::radians(pitch));
 	direction.z = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	direction = glm::normalize(direction);
-	glv3 right = glv3(sin(glm::radians(yaw) - pi / 2.0f), 0, cos(glm::radians(yaw) - pi / 2.0f));
+	glv3 right = glv3(sin(glm::radians(yaw) - k_pi / 2.0f), 0, cos(glm::radians(yaw) - k_pi / 2.0f));
 	if (GetKey(GLFW_KEY_W))
 	{
 		current_camera->SetPos(current_camera->GetPos() + camera_speed * direction * time2);

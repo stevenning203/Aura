@@ -2,6 +2,7 @@
 
 namespace aura
 {
+	int object_name_increment = 0;
 	enum class AuraParse
 	{
 		k_object, k_light, k_camera, k_script
@@ -44,10 +45,11 @@ namespace aura
 		glv3 position = glv3(0.f);
 		glv3 scale = glv3(1.f);
 		glv3 rot = glv3(0.f);
-		std::string name = "Unnamed Object";
+		std::string name = std::string("Unnamed Object ") + std::to_string(object_name_increment);
 		gloom::Model model;
 		Object(gloom::Model model_load)
 		{
+			object_name_increment++;
 			this->model = model_load;
 		}
 		void Draw(gloom::ModMat matrix, std::vector<gloom::Light> &lights)

@@ -28,6 +28,7 @@ namespace buffers
 	char model_name[k_char_input_max];
 	char model_location[k_char_input_max];
 	char scene_name[k_char_input_max];
+	char object_name[k_char_input_max];
 
 	bool flip_uvs = true;
 
@@ -310,7 +311,7 @@ int main()
 				}
 				for (int i = 0; i < aura::active_scene->objects.size(); i++)
 				{
-					if (ImGui::TreeNode((aura::active_scene->objects[i].name + std::to_string(i)).c_str()))
+					if (ImGui::TreeNode((aura::active_scene->objects[i].name.c_str())))
 					{
 						if (ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1) || ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1) || ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1))
 						{
@@ -327,6 +328,12 @@ int main()
 						if (ImGui::InputFloat("X rotation", &aura::active_scene->objects[i].rot[0], 1, 1))
 						{
 
+						}
+						ImGui::InputText("Object Name", buffers::object_name, sizeof(buffers::object_name));
+						if (ImGui::Button("Set Name"))
+						{
+							aura::active_scene->objects[i].name = std::string(buffers::object_name);
+							buffers::Clear(buffers::object_name);
 						}
 						if (ImGui::Button("Delete Object"))
 						{
