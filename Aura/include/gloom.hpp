@@ -4,6 +4,10 @@
 //#define k_max_n_lights 100
 
 constexpr int k_max_n_lights = 100;
+constexpr int k_max_n_diffuse = 10;
+constexpr int k_max_n_specular = 10;
+constexpr int k_max_n_normal = 10;
+constexpr int k_max_n_height = 10;
 constexpr float pi = 3.1415926f;
 
 #include "imgui/imgui.h"
@@ -43,7 +47,9 @@ namespace gloom
 	unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false);
 	enum class Gloonum
 	{
-		GLO_CAMERA_MODE_FREECAM, GLO_CAMERA_MODE_DISABLED, GLO_CAMERA_MODE_LIMITED, GLO_MOUSE_MODE_SHOW, GLO_MOUSE_MODE_HIDE, GLO_TEXTURE_DIFFUSE, GLO_TEXTURE_SPECULAR,
+		k_gloom_mode_freecam, k_gloom_camera_mode_disabled, k_gloom_camera_mode_limited,
+		k_gloom_mouse_mode_show, k_gloom_mouse_mode_hide, k_gloom_texture_diffuse, k_gloom_texture_specular,
+		k_gloom_texture_normal, k_gloom_texture_null, k_gloom_texture_missing,
 	};
 
 	class Camera
@@ -53,7 +59,7 @@ namespace gloom
 		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 trg = glm::vec3(0.f, 0.f, 0.f);
 		glm::mat4 view_matrix = glm::mat4(1.0f);
-		Gloonum mode = Gloonum::GLO_CAMERA_MODE_FREECAM;
+		Gloonum mode = Gloonum::k_gloom_mode_freecam;
 	public:
 		void SetPos(glm::vec3 pos)
 		{
@@ -184,6 +190,7 @@ namespace gloom
 	struct Texture
 	{
 		unsigned int id = 0;
+		Gloonum enum_type = Gloonum::k_gloom_texture_null;
 		std::string type;
 		std::string path;
 	};
@@ -221,7 +228,7 @@ namespace gloom
 		void LoadModel(std::string path, bool flip_uvs);
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string type_string);
 		bool enabled = true;
 	};
 
@@ -256,6 +263,8 @@ namespace gloom
 
 	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
 	
+	UniformLocation sampler_diffuse_location[k_max_n_diffuse], sampler_specular_location[k_max_n_specular];
+
 	float time0 = 0, time1 = 0, time2 = 0;
 
 	float camera_sensitivity = 0.2f;
@@ -459,11 +468,11 @@ void gloom::SetMousePos(int x, int y)
 
 void gloom::SetMouseMode(Gloonum mouse_mode)
 {
-	if (mouse_mode == gloom::Gloonum::GLO_MOUSE_MODE_HIDE)
+	if (mouse_mode == gloom::Gloonum::k_gloom_mouse_mode_hide)
 	{
 		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	}
-	else if (mouse_mode == gloom::Gloonum::GLO_MOUSE_MODE_SHOW)
+	else if (mouse_mode == gloom::Gloonum::k_gloom_mouse_mode_show)
 	{
 		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
@@ -537,7 +546,7 @@ void gloom::Model::LoadModel(std::string path, bool flip_uvs)
 	ProcessNode(scene->mRootNode, scene);
 }
 
-std::vector<gloom::Texture> gloom::Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<gloom::Texture> gloom::Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string type_string)
 {
 	std::vector<Texture> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -559,7 +568,23 @@ std::vector<gloom::Texture> gloom::Model::LoadMaterialTextures(aiMaterial* mat, 
 		{   
 			Texture texture;
 			texture.id = TextureFromFile(str.C_Str(), this->dir);
-			texture.type = typeName;
+			texture.type = type_string;
+			if (type_string == "texture_diffuse")
+			{
+				texture.enum_type = Gloonum::k_gloom_texture_diffuse;
+			}
+			else if (type_string == "texture_specular")
+			{
+				texture.enum_type = Gloonum::k_gloom_texture_specular;
+			}
+			else if (type_string == "texture_normal")
+			{
+				texture.enum_type = Gloonum::k_gloom_texture_normal;
+			}
+			else
+			{
+				texture.enum_type = Gloonum::k_gloom_texture_missing;
+			}
 			texture.path = str.C_Str();
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);  
@@ -705,24 +730,27 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
-	int diffuseNr = 1;
-	int specularNr = 1;
-	int normalNr = 1;
-	int heightNr = 1;
+	int diffuse_index = 1;
+	int specular_index = 1;
+	int normal_index = 1;
+	int height_index = 1;
 	for (int i = 0; i < textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
-		std::string number;
-		std::string name = textures[i].type;
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++);
-		else if (name == "texture_normal")
-			number = std::to_string(normalNr++);
-		else if (name == "texture_height")
-			number = std::to_string(heightNr++);
-		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
+
+		if (textures[i].enum_type == Gloonum::k_gloom_texture_diffuse)
+		{
+			WriteToShader(sampler_diffuse_location[diffuse_index++], i);
+		}
+		else if (textures[i].enum_type == Gloonum::k_gloom_texture_specular)
+		{
+			WriteToShader(sampler_diffuse_location[specular_index++], i);
+		}
+		else if (textures[i].enum_type == Gloonum::k_gloom_texture_normal)
+		{
+			WriteToShader(sampler_diffuse_location[normal_index++], i);
+		}
+
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	WriteToShader(matrix_projection_location, perspective_matrix.Get());
@@ -1061,6 +1089,15 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 		struct_light_direction[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_direction).c_str());
 		struct_light_attenuation[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_attenuation).c_str());
 		struct_light_theta[i].val = glGetUniformLocation(shader, (temp_lights + std::to_string(i) + temp_theta).c_str());
+	}
+	for (int i = 0; i < k_max_n_diffuse; i++)
+	{
+		std::string temp_diffuse = "texture_diffuse";
+		std::string temp_specular = "texture_specular";
+		//
+		//
+		sampler_diffuse_location[i].val = glGetUniformLocation(shader, (temp_diffuse + std::to_string(i + 1)).c_str());
+		sampler_specular_location[i].val = glGetUniformLocation(shader, (temp_specular + std::to_string(i + 1)).c_str());
 	}
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
