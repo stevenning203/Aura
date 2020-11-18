@@ -180,6 +180,37 @@ int main()
 				}
 				ImGui::EndMainMenuBar();
 			}
+			if (state::options_menu_open)
+			{
+				ImGui::Begin("Options");
+				ImGui::SliderFloat("Camera Sensitivity", &gloom::camera_sensitivity, 0.1f, 5.f);
+				ImGui::SameLine();
+				if (ImGui::Button("Reset"))
+				{
+					gloom::camera_sensitivity = 0.2f;
+				}
+				ImGui::SliderFloat("Camera Move Speed", &gloom::camera_speed, 0.1f, 100.f);
+				ImGui::SameLine();
+				if (ImGui::Button("Reset"))
+				{
+					gloom::camera_speed = 5.f;
+				}
+				if (ImGui::SliderFloat("Camera FOV (deg)", &gloom::field_of_view, 10.f, 130.f))
+				{
+					gloom::SetFieldOfView(gloom::field_of_view);
+				}
+				if (ImGui::Button("Close"))
+				{
+					state::options_menu_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::scripts_menu_open)
+			{
+				ImGui::Begin("C++ files & scripts");
+
+				ImGui::End();
+			}
 			if (state::new_file_menu_open)
 			{
 				ImGui::Begin("New Project");

@@ -48,7 +48,7 @@ uniform sampler2D texture_normal1;
 uniform Light lights[100];
 uniform int n_lights;
 
-float ambient_strength = 0.1f;
+float ambient_strength = 0.5f;
 
 vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 {
@@ -63,7 +63,7 @@ vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 void main()
 {
 	vec3 texture_fragment = vec3(texture(texture_diffuse1, texture_coordinate));
-	vec3 light_multiplier = vec3(0.f);
+	vec3 light_multiplier = vec3(0.0f);
 	for (int i = 0; i < n_lights; i++)
 	{
 		light_multiplier += CalculateDiffuse(lights[i], fragment_position);

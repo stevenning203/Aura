@@ -909,7 +909,7 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int heigh
 	window.height = height;
 	window.UpdateHalfPoint();
 	glViewport(0, 0, width, height);
-	perspective_matrix.Set(glm::perspective(field_of_view, (float)width / (float)height, 0.1f, 100.f));
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), (float)width / (float)height, 0.1f, 100.f));
 }
 
 void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
@@ -1122,8 +1122,8 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 
 void gloom::SetFieldOfView(float deg)
 {
-	field_of_view = glm::radians(deg);
-	perspective_matrix.Set(glm::perspective(field_of_view, (float)window.width / (float)window.height, 0.1f, 100.f));
+	field_of_view = deg;
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), (float)window.width / (float)window.height, 0.1f, 100.f));
 }
 
 gloom::Camera * gloom::GetCurrentCamera()
