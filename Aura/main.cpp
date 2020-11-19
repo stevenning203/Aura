@@ -29,6 +29,7 @@ namespace buffers
 	char model_location[k_char_input_max];
 	char scene_name[k_char_input_max];
 	char object_name[k_char_input_max];
+	char script_location[k_char_input_max];
 
 	bool flip_uvs = true;
 
@@ -208,7 +209,16 @@ int main()
 			if (state::scripts_menu_open)
 			{
 				ImGui::Begin("C++ files & scripts");
+				ImGui::InputText(".cpp file location", buffers::script_location, sizeof(buffers::script_location));
+				if (ImGui::Button("Load"))
+				{
 
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("New"))
+				{
+
+				}
 				ImGui::End();
 			}
 			if (state::new_file_menu_open)

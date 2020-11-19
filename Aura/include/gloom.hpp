@@ -38,6 +38,7 @@ constexpr float k_pi = 3.1415926f;
 #include <math.h>
 #include <thread>
 
+typedef glm::vec4 glv4;
 typedef glm::vec3 glv3;
 typedef glm::mat4 glm4;
 typedef glm::vec2 glv2;
