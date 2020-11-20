@@ -5,7 +5,7 @@ namespace aura
 	int object_name_increment = 0;
 	enum class AuraParse
 	{
-		k_object, k_light, k_camera, k_script
+		k_object, k_light, k_camera, k_script, k_null,
 	};
 	class Script
 	{

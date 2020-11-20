@@ -1,21 +1,21 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(243,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(244,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(244,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(245,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(358,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(410,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(359,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(411,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(410,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(411,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float

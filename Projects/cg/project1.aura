@@ -1,0 +1,12 @@
+#filetype auraproj
+
+#region:objects
+>>NewObject() 19 models/backpack.obj 
+
+[region:camera]
+
+[region:lights]
+
+[region:scripts]
+
+[end]

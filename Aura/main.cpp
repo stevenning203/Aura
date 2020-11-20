@@ -37,6 +37,11 @@ namespace buffers
 	{
 		memset(buffer, NULL, k_char_input_max);
 	}
+
+	void Log(const char* output)
+	{
+		strcpy_s(console_output, output);
+	}
 }
 
 namespace console
@@ -49,11 +54,17 @@ namespace console
 			if (str_input.substr(7, 6) == "lights")
 			{
 				state::lights_menu_open = true;
+				buffers::Log("Successfully opened lights menu");
 			}
 			if (str_input.substr(7, 7) == "objects")
 			{
 				state::objects_menu_open = true;
+				buffers::Log("Successfully opened lights menu")
 			}
+		}
+		else if (str_input.substr(0, 4) == "quit" || str_input.substr(0, 4) == "exit")
+		{
+			gloom::ForceExit();
 		}
 	}
 }
@@ -192,13 +203,18 @@ int main()
 				}
 				ImGui::SliderFloat("Camera Move Speed", &gloom::camera_speed, 0.1f, 100.f);
 				ImGui::SameLine();
-				if (ImGui::Button("Reset"))
+				if (ImGui::Button("Reset "))
 				{
 					gloom::camera_speed = 5.f;
 				}
 				if (ImGui::SliderFloat("Camera FOV (deg)", &gloom::field_of_view, 10.f, 130.f))
 				{
 					gloom::SetFieldOfView(gloom::field_of_view);
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Reset FOV"))
+				{
+					gloom::SetFieldOfView(90.f);
 				}
 				if (ImGui::Button("Close"))
 				{
@@ -218,6 +234,10 @@ int main()
 				if (ImGui::Button("New"))
 				{
 
+				}
+				if (ImGui::Button("Close"))
+				{
+					state::scripts_menu_open = false;
 				}
 				ImGui::End();
 			}
@@ -245,27 +265,37 @@ int main()
 					std::string line;
 					std::fstream file(buffers::project_location);
 					int ln = 1;
-					aura::AuraParse mode;
+					aura::AuraParse mode = aura::AuraParse::k_null;
 					while (std::getline(file, line))
 					{
-						if (line.find("[begin:a^f]"))
+						if (mode == aura::AuraParse::k_null)
 						{
-							if (!ln)
+							if (ln == 1)
 							{
-								break;
+								if (!(line.substr(0, 18) == "#filetype auraproj"))
+								{
+									break;
+								}
+							}
+							if (line.substr(0, 15) == "#region objects")
+							{
+								mode = aura::AuraParse::k_object;
+							}
+							if (line.find("[region:lights") != std::string::npos)
+							{
+								mode = aura::AuraParse::k_light;
+							}
+							if (line.find("[region:scripts") != std::string::npos)
+							{
+								mode = aura::AuraParse::k_script;
 							}
 						}
-						if (line.find("[region:objects]"))
+						else if (mode == aura::AuraParse::k_object)
 						{
-							mode = aura::AuraParse::k_object;
-						}
-						if (line.find("[region:lights"))
-						{
-							mode = aura::AuraParse::k_light;
-						}
-						if (line.find("[region:scripts"))
-						{
-							mode = aura::AuraParse::k_script;
+							if (line.substr(0, 13) == ">>NewObject: ")
+							{
+								int len = std::stoi(line.substr(13, 2));
+							}
 						}
 						ln++;
 					}
@@ -444,6 +474,7 @@ int main()
 				ImGui::InputText(">> console in", buffers::console_input, sizeof(buffers::console_input));
 				if (ImGui::Button("Send"))
 				{
+					buffers::Clear(buffers::console_output);
 					console::Parse(buffers::console_input);
 					buffers::Clear(buffers::console_input);
 				}

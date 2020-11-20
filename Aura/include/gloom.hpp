@@ -502,7 +502,7 @@ bool gloom::GetKey(unsigned int glKeycode)
 
 bool gloom::QueueExit()
 {
-	return glfwWindowShouldClose(local_window);
+	return glfwWindowShouldClose(local_window) || gloom::force_exit;
 }
 
 void gloom::FlipDisplay()
@@ -622,7 +622,6 @@ void gloom::Model::ProcessNode(aiNode *node, const aiScene *scene)
 gloom::Mesh gloom::Model::ProcessMesh(aiMesh *mesh, const aiScene * scene)
 {
 	{
-		
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;
@@ -873,7 +872,7 @@ void gloom::CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 
 void gloom::ForceExit()
 {
-	gloom::force_exit = true;
+	force_exit = true;
 }
 
 void gloom::MouseButtonCallback(GLFWwindow * window, int button, int action, int mode)
