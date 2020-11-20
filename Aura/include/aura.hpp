@@ -1,11 +1,44 @@
 #include "gloom.hpp"
 
+namespace ap
+{
+	std::unordered_map<int, gloom::Model> model_hash;
+	void Throw(const char* text)
+	{
+		throw std::invalid_argument(text);
+	}
+	void ModelParse(std::string line)
+	{
+		if (line.substr(0, 12) == ">>NewModel()")
+		{
+			int len = stoi(line.substr(13, 2));
+			int id = stoi(line.substr(16, 4));
+			std::string path = line.substr(21, len);
+			model_hash[id] = gloom::Model(path.c_str());
+		}
+		else if (line.substr(0, 10) == "#endregion")
+		{
+			return;
+		}
+		else
+		{
+			Throw("Parsing error: >>NewModel() or #endregion text missing for Objects region");
+		}
+	}
+	void Compile()
+	{
+
+	}
+}
+
 namespace aura
 {
+	int aura_imgui_static_window = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 	int object_name_increment = 0;
+	int object_loading_increment = 0;
 	enum class AuraParse
 	{
-		k_object, k_light, k_camera, k_script, k_null,
+		k_object, k_light, k_camera, k_script, k_null, k_model,
 	};
 	class Script
 	{

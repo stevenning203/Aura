@@ -16,6 +16,7 @@ namespace state
 	bool context_editor_open = true;
 	bool lights_menu_open = true;
 	bool scripts_menu_open = false;
+	bool compile_menu_open = false;
 }
 
 namespace buffers
@@ -59,12 +60,13 @@ namespace console
 			if (str_input.substr(7, 7) == "objects")
 			{
 				state::objects_menu_open = true;
-				buffers::Log("Successfully opened lights menu")
+				buffers::Log("Successfully opened lights menu");
 			}
 		}
 		else if (str_input.substr(0, 4) == "quit" || str_input.substr(0, 4) == "exit")
 		{
 			gloom::ForceExit();
+			buffers::Log("Force closing unsuccesful");
 		}
 	}
 }
@@ -118,7 +120,7 @@ int main()
 					}
 					if (ImGui::MenuItem("Compile"))
 					{
-
+						state::compile_menu_open = true;
 					}
 					if (ImGui::MenuItem("Quit"))
 					{
@@ -192,18 +194,28 @@ int main()
 				}
 				ImGui::EndMainMenuBar();
 			}
+			if (state::compile_menu_open)
+			{
+				ImGui::Begin("Compiler");
+				ImGui::Button("Compile");
+				if (ImGui::Button("Close"))
+				{
+					state::compile_menu_open = false;
+				}
+				ImGui::End();
+			}
 			if (state::options_menu_open)
 			{
 				ImGui::Begin("Options");
 				ImGui::SliderFloat("Camera Sensitivity", &gloom::camera_sensitivity, 0.1f, 5.f);
 				ImGui::SameLine();
-				if (ImGui::Button("Reset"))
+				if (ImGui::Button("Reset Sens"))
 				{
 					gloom::camera_sensitivity = 0.2f;
 				}
 				ImGui::SliderFloat("Camera Move Speed", &gloom::camera_speed, 0.1f, 100.f);
 				ImGui::SameLine();
-				if (ImGui::Button("Reset "))
+				if (ImGui::Button("Reset Speed"))
 				{
 					gloom::camera_speed = 5.f;
 				}
@@ -277,7 +289,11 @@ int main()
 									break;
 								}
 							}
-							if (line.substr(0, 15) == "#region objects")
+							if (line.substr(0, 16) == "#region : models")
+							{
+								mode = aura::AuraParse::k_model;
+							}
+							if (line.substr(0, 17) == "#region : objects")
 							{
 								mode = aura::AuraParse::k_object;
 							}
@@ -290,11 +306,19 @@ int main()
 								mode = aura::AuraParse::k_script;
 							}
 						}
+						else if (mode == aura::AuraParse::k_model)
+						{
+							ap::ModelParse(line);
+							if (line.substr(0, 10) == "#endregion")
+							{
+								mode == aura::AuraParse::k_null;
+							}
+						}
 						else if (mode == aura::AuraParse::k_object)
 						{
-							if (line.substr(0, 13) == ">>NewObject: ")
+							if (line.substr(0, 10) == "#endregion")
 							{
-								int len = std::stoi(line.substr(13, 2));
+								mode == aura::AuraParse::k_null;
 							}
 						}
 						ln++;
@@ -315,7 +339,7 @@ int main()
 			}
 			if (state::models_menu_open)
 			{
-				ImGui::Begin("Models");
+				ImGui::Begin("Models", nullptr, aura::aura_imgui_static_window);
 				if (ImGui::Button("Load Models"))
 				{
 					state::load_models_menu_open = true;
@@ -333,7 +357,7 @@ int main()
 			}
 			if (state::lights_menu_open)
 			{
-				ImGui::Begin("Lights");
+				ImGui::Begin("Lights", nullptr, aura::aura_imgui_static_window);
 				if (ImGui::Button("Close"))
 				{
 					state::lights_menu_open = false;
@@ -375,7 +399,7 @@ int main()
 			}
 			if (state::objects_menu_open)
 			{
-				ImGui::Begin("Objects");
+				ImGui::Begin("Objects", nullptr, aura::aura_imgui_static_window);
 				if (ImGui::Button("Close"))
 				{
 					state::objects_menu_open = false;
@@ -464,12 +488,12 @@ int main()
 			}
 			if (state::context_editor_open)
 			{
-				ImGui::Begin("Context Editor");
+				ImGui::Begin("Context Editor", nullptr, aura::aura_imgui_static_window);
 				ImGui::End();
 			}
 			if (state::console_open)
 			{
-				ImGui::Begin("Console");
+				ImGui::Begin("Console", nullptr, aura::aura_imgui_static_window);
 				ImGui::Text((std::string("OUT >> |: ") + std::string(buffers::console_output)).c_str());
 				ImGui::InputText(">> console in", buffers::console_input, sizeof(buffers::console_input));
 				if (ImGui::Button("Send"))
