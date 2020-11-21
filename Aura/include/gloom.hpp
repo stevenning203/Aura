@@ -1,7 +1,6 @@
 #ifndef GLOOM_IMPORTED
 #define GLOOM_IMPORTED
 #define STB_IMAGE_IMPLEMENTATION
-//#define k_max_n_lights 100
 
 constexpr int k_max_n_lights = 100;
 constexpr int k_max_n_diffuse = 10;
@@ -32,12 +31,13 @@ constexpr float k_pi = 3.1415926f;
 #include <sstream>
 #include <iostream>
 #include <ctime>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <Windows.h>
 #include <shellapi.h>
-#include <math.h>
+#include <cmath>
 #include <thread>
+#include <direct.h>
 
 typedef glm::vec4 glv4;
 typedef glm::vec3 glv3;
@@ -46,6 +46,28 @@ typedef glm::vec2 glv2;
 
 namespace gloom
 {
+	void NewFile(const char* path)
+	{
+		std::ofstream t(path);
+		t.close();
+	}
+
+	void NewFile(std::string path)
+	{
+		std::ofstream t(path);
+		t.close();
+	}
+
+	void NewPath(const char* path)
+	{
+		int nil = _mkdir(path);
+	}
+
+	void NewPath(std::string path)
+	{
+		int nil = _mkdir(path.c_str());
+	}
+
 	unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false);
 	enum class Gloonum
 	{
@@ -240,10 +262,18 @@ namespace gloom
 		int width = 0;
 		int height = 0;
 		glv2 half_point = glv2(0.f);
+		float aspect_ratio;
 		void UpdateHalfPoint()
 		{
 			this->half_point[0] = (int)((float)width / 2.f);
 			this->half_point[1] = (int)((float)height / 2.f);
+		}
+		void UpdateAspectRatio()
+		{
+			if (width && height)
+				this->aspect_ratio = (float)width / (float)height;
+			else
+				this->aspect_ratio = 16.f / 9.f;
 		}
 	};
 
@@ -379,11 +409,11 @@ void gloom::CameraBegin()
 		pitch = -89.9f;
 	}
 	glv3 direction;
-	direction.x = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
+	direction.y = std::sin(glm::radians(pitch));
+	direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
 	direction = glm::normalize(direction);
-	glv3 right = glv3(sin(glm::radians(yaw) - k_pi / 2.0f), 0, cos(glm::radians(yaw) - k_pi / 2.0f));
+	glv3 right = glv3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
 	if (GetKey(GLFW_KEY_W))
 	{
 		current_camera->SetPos(current_camera->GetPos() + camera_speed * direction * time2);
@@ -909,8 +939,9 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int heigh
 	window.width = width;
 	window.height = height;
 	window.UpdateHalfPoint();
+	window.UpdateAspectRatio();
 	glViewport(0, 0, width, height);
-	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), (float)width / (float)height, 0.1f, 100.f));
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 }
 
 void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
@@ -1001,6 +1032,8 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	int height = window_height;
 	window.width = window_width;
 	window.height = window_height;
+	window.UpdateHalfPoint();
+	window.UpdateAspectRatio();
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -1010,8 +1043,8 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 		local_window = glfwCreateWindow(width, height, window_name, glfwGetPrimaryMonitor(), NULL);
 	else
 		local_window = glfwCreateWindow(width, height, window_name, NULL, NULL);
-	perspective_matrix.Set(glm::perspective(glm::radians(90.0f), (float)width / (float)height, 0.1f, 100.0f));
-	orthographic_matrix.Set(glm::ortho(0.f, (float)width, (float)height, 0.f, -1.f, 1.f));
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.0f));
+	orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, -1.f, 1.f));
 	glfwMakeContextCurrent(local_window);
 	if (!local_window)
 	{
@@ -1124,7 +1157,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 void gloom::SetFieldOfView(float deg)
 {
 	field_of_view = deg;
-	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), (float)window.width / (float)window.height, 0.1f, 100.f));
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), 16.f / 9.f, 0.1f, 100.f));
 }
 
 gloom::Camera * gloom::GetCurrentCamera()

@@ -1,0 +1,19 @@
+#filetype auraproj proj
+
+#scene : Hello
+
+#region : models
+>>NewModel() 19 0000 models/backpack.obj
+#endregion
+
+#region : objects
+>>NewObject() 0000 
+#endregion
+
+[region:camera]
+
+[region:lights]
+
+[region:scripts]
+
+#endscene

@@ -38,7 +38,7 @@ namespace aura
 	int object_loading_increment = 0;
 	enum class AuraParse
 	{
-		k_object, k_light, k_camera, k_script, k_null, k_model,
+		k_object, k_light, k_camera, k_script, k_null, k_model, k_seek,
 	};
 	class Script
 	{

@@ -17,6 +17,7 @@ namespace state
 	bool lights_menu_open = true;
 	bool scripts_menu_open = false;
 	bool compile_menu_open = false;
+	bool theme_menu_open = false;
 }
 
 namespace buffers
@@ -60,7 +61,7 @@ namespace console
 			if (str_input.substr(7, 7) == "objects")
 			{
 				state::objects_menu_open = true;
-				buffers::Log("Successfully opened lights menu");
+				buffers::Log("Successfully opened objects menu");
 			}
 		}
 		else if (str_input.substr(0, 4) == "quit" || str_input.substr(0, 4) == "exit")
@@ -164,7 +165,7 @@ int main()
 					}
 					if (ImGui::MenuItem("Theme"))
 					{
-
+						state::theme_menu_open = true;
 					}
 					ImGui::EndMenu();
 				}
@@ -260,6 +261,12 @@ int main()
 				ImGui::InputText("Path", buffers::project_location, buffers::k_char_input_max);
 				if (ImGui::Button("Create"))
 				{
+					std::string temp_begin = std::string(buffers::project_location);
+					gloom::NewPath(temp_begin);
+					gloom::NewFile(temp_begin + std::string("/main.cpp"));
+					gloom::NewFile(temp_begin + std::string("/mainscript.cpp"));
+					gloom::NewFile(temp_begin + std::string("/project.aura"));
+					gloom::NewPath(temp_begin + std::string("/models"));
 					state::new_file_menu_open = false;
 				}
 				if (ImGui::Button("Close"))
@@ -278,6 +285,7 @@ int main()
 					std::fstream file(buffers::project_location);
 					int ln = 1;
 					aura::AuraParse mode = aura::AuraParse::k_null;
+					int scene_number = 0;
 					while (std::getline(file, line))
 					{
 						if (mode == aura::AuraParse::k_null)
@@ -334,6 +342,12 @@ int main()
 			if (state::save_file_menu_open)
 			{
 				ImGui::Begin("Save");
+
+				ImGui::End();
+			}
+			if (state::theme_menu_open)
+			{
+				ImGui::Begin("Theme");
 
 				ImGui::End();
 			}
