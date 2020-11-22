@@ -11,8 +11,6 @@ out vec3 normal;
 uniform mat4 matrix_view;
 uniform mat4 matrix_projection;
 uniform mat4 matrix_model;
-uniform vec3 light_color;
-uniform vec3 light_position;
 
 void main()
 {
@@ -48,7 +46,8 @@ uniform sampler2D texture_normal1;
 uniform Light lights[100];
 uniform int n_lights;
 
-float ambient_strength = 0.5f;
+float ambient_strength = 0.1f;
+float specular_strength = 0.5f;
 
 vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 {
@@ -67,6 +66,10 @@ void main()
 	for (int i = 0; i < n_lights; i++)
 	{
 		light_multiplier += CalculateDiffuse(lights[i], fragment_position);
+	}
+	if (n_lights == 0)
+	{
+		light_multiplier += 0.1;
 	}
 	fragment_color = texture_fragment * light_multiplier;
 }

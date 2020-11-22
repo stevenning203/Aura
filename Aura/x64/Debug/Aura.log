@@ -1,15 +1,14 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(269,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(270,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(270,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(271,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(398,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(450,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
@@ -20,8 +19,10 @@ C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(450,31): warnin
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(569,9): warning C4244: 'argument': conversion from 'double' to 'DWORD', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(826,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(342,14): warning C4553: '==': result of expression not used; did you intend '='?
-C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(349,14): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(505,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(572,9): warning C4244: 'argument': conversion from 'double' to 'DWORD', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(836,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(345,14): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\steve\Documents\Development\Aura\Aura\main.cpp(352,14): warning C4553: '==': result of expression not used; did you intend '='?
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

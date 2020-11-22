@@ -74,7 +74,7 @@ namespace console
 
 int main()
 {
-	GLFWwindow *ptr = gloom::Init(1920, 1080, "Aura");
+	gloom::Init(1920, 1080, "Aura");
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
@@ -100,7 +100,9 @@ int main()
 		gloom::ClearBuffer();
 		//render
 		if (gloom::mouse_button_right_held)
+		{
 			gloom::CameraBegin();
+		}
 		aura::active_scene->Draw();
 		{
 			if (ImGui::BeginMainMenuBar())
@@ -369,7 +371,10 @@ int main()
 			if (state::theme_menu_open)
 			{
 				ImGui::Begin("Theme");
-
+				if (ImGui::Button("Close"))
+				{
+					state::theme_menu_open = false;
+				}
 				ImGui::End();
 			}
 			if (state::models_menu_open)

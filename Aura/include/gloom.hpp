@@ -185,7 +185,7 @@ namespace gloom
 		float width = 0, height = 0;
 		float angle = 0;
 		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
-		glm::vec2 pos = glm::vec2(0.f, 0.f);
+		glm::vec2 position = glm::vec2(0.f, 0.f);
 		glm::vec2 point_of_rotation = glm::vec2(0, 0);
 		Sprite2D(unsigned int buffer_id, glm::vec3 rgb, float width, float height, unsigned int texture_id = NULL)
 		{
@@ -197,6 +197,7 @@ namespace gloom
 			this->width = width;
 			this->height = height;
 		}
+		void Draw(glv2 xy);
 		glm::vec2 GetCenter()
 		{
 			return glm::vec2(scale[0] * width / 2, scale[1] * height / 2);
@@ -263,7 +264,7 @@ namespace gloom
 		int width = 0;
 		int height = 0;
 		glv2 half_point = glv2(0.f);
-		float aspect_ratio;
+		float aspect_ratio = 1.f;
 		void UpdateHalfPoint()
 		{
 			this->half_point[0] = (int)((float)width / 2.f);
@@ -296,7 +297,7 @@ namespace gloom
 
 	ProjMat perspective_matrix, orthographic_matrix;
 
-	ModMat translationM, rotationM, scalingM;
+	glm4 identity_matrix(1.f);
 
 	UniformLocation matrix_ortographic_location, matrix_model_location, matrix_projection_location, matrix_view_location;
 
@@ -313,6 +314,7 @@ namespace gloom
 
 	float camera_sensitivity = 0.2f;
 	float camera_speed = 5.f;
+	float camera_speed_multiplier = 1.f;
 
 	float pitch = 0.f;
 	float yaw = -90.f;
@@ -394,9 +396,7 @@ namespace gloom
 
 void gloom::CameraBegin()
 {
-	time0 = time1;
-	time1 = GetTime();
-	time2 = time1 - time0;
+	GetKey(GLFW_KEY_LEFT_SHIFT) ? camera_speed_multiplier = 2.5f : camera_speed_multiplier = 1.f;
 	float delta_x = window.half_point.x - mouse_x;
 	float delta_y = window.half_point.y - mouse_y;
 	if (mouse_button_right_down)
@@ -424,23 +424,23 @@ void gloom::CameraBegin()
 	glv3 right = glv3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
 	if (GetKey(GLFW_KEY_W))
 	{
-		current_camera->SetPos(current_camera->GetPos() + camera_speed * direction * time2);
+		current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * direction * time2);
 	}
 	if (GetKey(GLFW_KEY_S))
 	{
-		current_camera->SetPos(current_camera->GetPos() - camera_speed * direction * time2);
+		current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * direction * time2);
 	}
 	if (GetKey(GLFW_KEY_A))
 	{
-		current_camera->SetPos(current_camera->GetPos() - camera_speed * right * time2);
+		current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * right * time2);
 	}
 	if (GetKey(GLFW_KEY_D))
 	{
-		current_camera->SetPos(current_camera->GetPos() + camera_speed * right * time2);
+		current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * right * time2);
 	}
 	if (GetKey(GLFW_KEY_SPACE))
 	{
-		current_camera->SetPos(current_camera->GetPos() + glv3(0.f, camera_speed * time2, 0.f));
+		current_camera->SetPos(current_camera->GetPos() + glv3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
 	}
 	current_camera->SetTrg(current_camera->GetPos() + direction);
 }
@@ -501,6 +501,9 @@ void gloom::ClearBuffer()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	time0 = time1;
+	time1 = GetTime();
+	time2 = time1 - time0;
 }
 
 void gloom::ForceLowInput()
@@ -792,6 +795,13 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 	current_camera = camera_set;
 }
 
+void gloom::Sprite2D::Draw(glv2 xy)
+{
+	WriteToShader(matrix_projection_location, &orthographic_matrix.Get());
+	//WriteToShader(matrix_model_location, nullptr);
+	WriteToShader(matrix_view_location, &identity_matrix);
+}
+
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
 	int diffuse_index = 1;
@@ -1011,7 +1021,7 @@ unsigned int gloom::ShaderInit(const char* path) {
 	glGetShaderiv(vSID, GL_COMPILE_STATUS, &success);
 	glGetShaderiv(vSID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if (InfoLogLength > 0) {
-		std::vector<char> VertexShaderErrorMessage(InfoLogLength + 1);
+		std::vector<char> VertexShaderErrorMessage((size_t)InfoLogLength + (size_t)1);
 		glGetShaderInfoLog(vSID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
 		std::cout << &VertexShaderErrorMessage[0];
 	}
@@ -1021,7 +1031,7 @@ unsigned int gloom::ShaderInit(const char* path) {
 	glGetShaderiv(fSID, GL_COMPILE_STATUS, &success);
 	glGetShaderiv(fSID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if (InfoLogLength > 0) {
-		std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
+		std::vector<char> FragmentShaderErrorMessage((size_t)InfoLogLength + (size_t)1);
 		glGetShaderInfoLog(fSID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
 		std::cout << &FragmentShaderErrorMessage[0];
 	}
@@ -1032,7 +1042,7 @@ unsigned int gloom::ShaderInit(const char* path) {
 	glGetProgramiv(ProgramID, GL_LINK_STATUS, &success);
 	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if (InfoLogLength > 0) {
-		std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
+		std::vector<char> ProgramErrorMessage((size_t)InfoLogLength + (size_t)1);
 		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		std::cout << &ProgramErrorMessage[0];
 	}
@@ -1176,6 +1186,11 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	glfwSetCursorPosCallback(local_window, CursorPosCallback);
 	auto language = TextEditor::LanguageDefinition::CPlusPlus();
 	editor.SetLanguageDefinition(language);
+	glv3 direction(0.f);
+	direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
+	direction.y = std::sin(glm::radians(pitch));
+	direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
+	direction = glm::normalize(direction);
 	return local_window;
 }
 
