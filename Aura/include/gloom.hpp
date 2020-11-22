@@ -8,6 +8,7 @@ constexpr int k_max_n_specular = 10;
 constexpr int k_max_n_normal = 10;
 constexpr int k_max_n_height = 10;
 constexpr float k_pi = 3.1415926f;
+constexpr double k_max_fps_inv = (double)1000 / (double)24;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -281,6 +282,8 @@ namespace gloom
 
 	bool force_exit = false;
 
+	int target_fps = 60;
+
 	unsigned int shader;
 
 	Camera* current_camera;
@@ -305,6 +308,9 @@ namespace gloom
 
 	float time0 = 0, time1 = 0, time2 = 0;
 
+	std::chrono::high_resolution_clock::time_point time_point0;
+	std::chrono::high_resolution_clock::time_point time_point1;
+
 	float camera_sensitivity = 0.2f;
 	float camera_speed = 5.f;
 
@@ -316,6 +322,8 @@ namespace gloom
 	bool mouse_button_left_up, mouse_button_right_up, mouse_button_middle_up;
 
 	bool mouse_button_left_held, mouse_button_right_held, mouse_button_middle_held;
+
+	bool vertical_sync = true;
 
 	TextEditor editor;
 	
@@ -488,6 +496,7 @@ double gloom::GetTime()
 
 void gloom::ClearBuffer()
 {
+	time_point0 = std::chrono::high_resolution_clock::now();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -546,6 +555,19 @@ void gloom::FlipDisplay()
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(local_window);
+	time_point1 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> delta = std::chrono::duration_cast<std::chrono::duration<double>>(time_point1 - time_point0);
+	if (!vertical_sync)
+	{
+		double fps_inv = (double)1000 / (double)target_fps;
+		double delta_count = (double)1000 * delta.count();
+		double sleep_time = (int)(fps_inv - delta_count);
+		if (sleep_time > k_max_fps_inv)
+		{
+			sleep_time = (int)k_max_fps_inv;
+		}
+		Sleep(sleep_time);
+	}
 }
 
 glm::vec2 gloom::GetMousePos()
@@ -1085,7 +1107,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.15f, 0.15f, 0.65f);
 	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
 	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
 	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
@@ -1110,6 +1132,9 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 	style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+	style.Colors[ImGuiCol_Tab] = ImVec4(0.f, 0.f, 0.f, 1.00f);
+	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style.Colors[ImGuiCol_TabActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 	ImGui_ImplGlfw_InitForOpenGL(local_window, true);
 	ImGui_ImplOpenGL3_Init("#version 430 core");
 	glViewport(0, 0, width, height);
@@ -1157,7 +1182,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 void gloom::SetFieldOfView(float deg)
 {
 	field_of_view = deg;
-	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), 16.f / 9.f, 0.1f, 100.f));
+	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 }
 
 gloom::Camera * gloom::GetCurrentCamera()
