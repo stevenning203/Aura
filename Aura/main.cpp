@@ -13,11 +13,12 @@ namespace state
 	bool load_models_error_popup_open = false;
 	bool objects_menu_open = true;
 	bool scenes_menu_open = false;
-	bool context_editor_open = true;
+	bool context_editor_open = false;
 	bool lights_menu_open = true;
 	bool scripts_menu_open = false;
 	bool compile_menu_open = false;
 	bool theme_menu_open = false;
+	bool text_editor_open = true;
 }
 
 namespace buffers
@@ -95,6 +96,9 @@ int main()
 
 	strcpy_s(buffers::model_location, "models/backpack/backpack.obj");
 	strcpy_s(buffers::model_name, "backpack");
+
+	gloom::CameraBegin();
+	gloom::CameraEnd();
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
@@ -119,7 +123,7 @@ int main()
 					}
 					if (ImGui::MenuItem("Save"))
 					{
-
+						state::save_file_menu_open = true;
 					}
 					if (ImGui::MenuItem("Compile"))
 					{
@@ -138,6 +142,10 @@ int main()
 						if (ImGui::MenuItem("Context Editor"))
 						{
 							state::context_editor_open = true;
+						}
+						if (ImGui::MenuItem("Text Editor"))
+						{
+							state::text_editor_open = true;
 						}
 						if (ImGui::MenuItem("Scripts"))
 						{
@@ -207,6 +215,12 @@ int main()
 				}
 				ImGui::End();
 			}
+			if (state::text_editor_open)
+			{
+				ImGui::Begin("Text Editor", nullptr, aura::aura_imgui_static_window);
+				auto cpos = gloom::editor.GetCursorPosition();
+				ImGui::End();
+			}
 			if (state::options_menu_open)
 			{
 				ImGui::Begin("Options");
@@ -240,11 +254,11 @@ int main()
 				if (ImGui::BeginTabItem("Video"))
 				{
 					ImGui::PushItemWidth(200.f);
-					if (ImGui::Checkbox("Vsync", &gloom::vertical_sync))
+					if (ImGui::Checkbox("V-Sync", &gloom::vertical_sync))
 					{
 						glfwSwapInterval(gloom::vertical_sync);
 					}
-					ImGui::Text("Vsync off = Extremely Unstable!!!");
+					ImGui::Text("!!!: V-Sync off is unstable");
 					if (ImGui::SliderInt("Target FPS", &gloom::target_fps, 24, 240))
 					{
 
@@ -342,14 +356,14 @@ int main()
 							ap::ModelParse(line);
 							if (line.substr(0, 10) == "#endregion")
 							{
-								mode == aura::AuraParse::k_null;
+								mode = aura::AuraParse::k_null;
 							}
 						}
 						else if (mode == aura::AuraParse::k_object)
 						{
 							if (line.substr(0, 10) == "#endregion")
 							{
-								mode == aura::AuraParse::k_null;
+								mode = aura::AuraParse::k_null;
 							}
 						}
 						ln++;
@@ -366,6 +380,10 @@ int main()
 			{
 				ImGui::Begin("Save");
 
+				if (ImGui::Button("Close"))
+				{
+					state::save_file_menu_open = false;
+				}
 				ImGui::End();
 			}
 			if (state::theme_menu_open)

@@ -181,21 +181,77 @@ namespace gloom
 	{
 		unsigned int id = 0;
 		unsigned int tid = 0;
-		float r = 0.f, g = 0.f, b = 0.f;
 		float width = 0, height = 0;
 		float angle = 0;
 		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
 		glm::vec2 position = glm::vec2(0.f, 0.f);
 		glm::vec2 point_of_rotation = glm::vec2(0, 0);
-		Sprite2D(unsigned int buffer_id, glm::vec3 rgb, float width, float height, unsigned int texture_id = NULL)
+		Sprite2D(const char* path, bool transparency = false)
 		{
-			this->id = buffer_id;
-			this->tid = texture_id;
-			this->r = rgb[0];
-			this->g = rgb[1];
-			this->b = rgb[2];
+			unsigned int texture_id;
+			glGenTextures(1, &texture_id);
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			int width, height, n;
+			unsigned char* data = stbi_load(path, &width, &height, &n, 0);
+			if (data)
+			{
+				if (transparency)
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				else
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
+			else
+			{
+				std::cout << "Failed to load texture" << std::endl;
+			}
+			stbi_image_free(data);
+
+			float vertices[18] =
+			{
+				1.f, 1.f, 0.f,
+				1.f, 0.f, 0.f,
+				0.f, 0.f, 0.f,
+
+				0.f, 0.f, 0.f,
+				1.f, 1.f, 0.f,
+				0.f, 1.f, 0.f,
+			};
+
+			float texture_coordinates[12] =
+			{
+				1.0f, 0.0f,
+				1.0f, 1.0f,
+				0.0f, 1.0f,
+
+				0.f, 1.f,
+				1.f, 0.f,
+				0.f, 0.f,
+			};
+
+			unsigned int VAO, VBO, TCBO;
+			glGenBuffers(1, &VBO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			glGenVertexArrays(1, &VAO);
+			glBindVertexArray(VAO);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+			glGenBuffers(1, &TCBO);
+			glBindBuffer(GL_ARRAY_BUFFER, TCBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinates), texture_coordinates, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			this->id = VAO;
 			this->width = width;
 			this->height = height;
+			this->tid = texture_id;
 		}
 		void Draw(glv2 xy);
 		glm::vec2 GetCenter()
@@ -502,7 +558,7 @@ void gloom::ClearBuffer()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	time0 = time1;
-	time1 = GetTime();
+	time1 = (float)GetTime();
 	time2 = time1 - time0;
 }
 
@@ -569,7 +625,7 @@ void gloom::FlipDisplay()
 		{
 			sleep_time = (int)k_max_fps_inv;
 		}
-		Sleep(sleep_time);
+		Sleep((DWORD)sleep_time);
 	}
 }
 
@@ -797,9 +853,19 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 
 void gloom::Sprite2D::Draw(glv2 xy)
 {
+	glm4 model(1.f);
+	model = glm::translate(model, glv3(this->position[0], this->position[1], 0.f));
+	if (this->angle != 0)
+	{
+		model = glm::translate(model, glv3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
+		model = glm::rotate(model, glm::radians(this->angle), glv3(0.f, 0.f, 1.f));
+		model = glm::translate(model, glv3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
+	}
+	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale, 0.f));
 	WriteToShader(matrix_projection_location, &orthographic_matrix.Get());
 	//WriteToShader(matrix_model_location, nullptr);
 	WriteToShader(matrix_view_location, &identity_matrix);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
