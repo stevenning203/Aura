@@ -71,5 +71,9 @@ void main()
 	{
 		light_multiplier += 0.1;
 	}
+	if (n_lights == -1)
+	{
+		light_multiplier = vec3(1.f, 1.f, 1.f);
+	}
 	fragment_color = texture_fragment * light_multiplier;
 }

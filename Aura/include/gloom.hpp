@@ -441,7 +441,7 @@ namespace gloom
 
 	void WriteToShader(UniformLocation shader_location, glm4 *matrix);
 
-	void WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources);
+	void WriteToShader(std::vector<Light> &light_sources);
 
 	void CameraBegin();
 
@@ -506,7 +506,7 @@ void gloom::CameraEnd()
 	SetMousePos(window.half_point.x, window.half_point.y);
 }
 
-void gloom::WriteToShader(UniformLocation shader_location, std::vector<Light> &light_sources)
+void gloom::WriteToShader(std::vector<Light> &light_sources)
 {
 	int index = 0;
 	for (auto &i : light_sources)
@@ -861,9 +861,9 @@ void gloom::Sprite2D::Draw(glv2 xy)
 		model = glm::rotate(model, glm::radians(this->angle), glv3(0.f, 0.f, 1.f));
 		model = glm::translate(model, glv3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
 	}
-	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale, 0.f));
+	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
 	WriteToShader(matrix_projection_location, &orthographic_matrix.Get());
-	//WriteToShader(matrix_model_location, nullptr);
+	WriteToShader(matrix_model_location, &model);
 	WriteToShader(matrix_view_location, &identity_matrix);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
@@ -896,7 +896,7 @@ void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 	WriteToShader(matrix_projection_location, &perspective_matrix.Get());
 	WriteToShader(matrix_model_location, &mod.Get());
 	WriteToShader(matrix_view_location, &current_camera->GetMatrix());
-	WriteToShader(matrix_view_location, light_sources);
+	WriteToShader(light_sources);
 	WriteToShader(int_n_lights_location, (int)light_sources.size());
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

@@ -1,24 +1,25 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(204,4): error C2065: 'gl': undeclared identifier
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(205,3): error C2143: syntax error: missing ';' before '}'
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(276,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(252,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(253,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(326,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(277,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(327,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(456,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(506,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(456,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(506,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(852,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(902,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

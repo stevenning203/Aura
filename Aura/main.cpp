@@ -181,10 +181,6 @@ int main()
 				}
 				if (ImGui::BeginMenu("Tools"))
 				{
-					if (ImGui::MenuItem("Placeholder"))
-					{
-
-					}
 					if (ImGui::MenuItem("Options"))
 					{
 						state::options_menu_open = true;
