@@ -6,7 +6,7 @@ namespace nsl
 	private:
 		HashKey key;
 		HashValue value;
-		HashNode next;
+		HashNode *next;
 	public:
 		HashNode(const HashKey& key_reference, const HashValue& value_reference)
 		{

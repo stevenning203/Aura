@@ -261,8 +261,8 @@ namespace gloom
 			glGenBuffers(1, &TCBO);
 			glBindBuffer(GL_ARRAY_BUFFER, TCBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinates), texture_coordinates, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 			this->id = VAO;
 			this->width = width;
 			this->height = height;
