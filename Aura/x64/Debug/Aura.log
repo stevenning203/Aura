@@ -21,5 +21,5 @@ C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(529,31): warnin
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(949,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(948,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

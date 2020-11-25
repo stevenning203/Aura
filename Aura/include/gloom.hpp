@@ -907,8 +907,7 @@ void gloom::Sprite2D::Draw()
 	}
 	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
 	glm4 temp = glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix_orthographic"), 1, false, &temp[0][0]);
-	WriteToShader(matrix_ortographic_location, &temp);
+	WriteToShader(matrix_ortographic_location, &identity_matrix);
 	WriteToShader(matrix_model_location, &identity_matrix);
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
@@ -1295,6 +1294,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glfwSetCursorPosCallback(local_window, CursorPosCallback);
 	auto language = TextEditor::LanguageDefinition::CPlusPlus();
 	editor.SetLanguageDefinition(language);
