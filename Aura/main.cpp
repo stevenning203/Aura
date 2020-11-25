@@ -77,6 +77,8 @@ int main()
 {
 	gloom::Init(1920, 1080, "Aura");
 
+	gloom::Sprite2D stewie("models/2d/takeaguess.png", true);
+
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::vector<aura::Scene> scenes;
@@ -102,6 +104,7 @@ int main()
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
+		stewie.Draw(glv2(0, 0));
 		//render
 		if (gloom::mouse_button_right_held)
 		{

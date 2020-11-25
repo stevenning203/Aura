@@ -10,6 +10,7 @@ out vec3 normal;
 
 uniform mat4 matrix_view;
 uniform mat4 matrix_projection;
+uniform mat4 matrix_orthographic;
 uniform mat4 matrix_model;
 
 void main()
@@ -17,8 +18,8 @@ void main()
 	normal = vertex_normal;
 	texture_coordinate = texture_coordinate_in;
 	fragment_position = vec3(matrix_model * vec4(vertex_position, 1.f));
-
-	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position, 1.f);
+	//gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position, 1.f);
+	gl_Position = vec4(vertex_position, 1.f);
 }
 
 #region fragment
@@ -62,18 +63,14 @@ vec3 CalculateDiffuse(Light light_source, vec3 fragment_position)
 void main()
 {
 	vec3 texture_fragment = vec3(texture(texture_diffuse1, texture_coordinate));
-	vec3 light_multiplier = vec3(0.0f);
+	vec3 light_multiplier = vec3(ambient_strength);
 	for (int i = 0; i < n_lights; i++)
 	{
 		light_multiplier += CalculateDiffuse(lights[i], fragment_position);
 	}
-	if (n_lights == 0)
-	{
-		light_multiplier += 0.1;
-	}
 	if (n_lights == -1)
 	{
-		light_multiplier = vec3(1.f, 1.f, 1.f);
+		light_multiplier = vec3(1.f);
 	}
 	fragment_color = texture_fragment * light_multiplier;
 }

@@ -45,6 +45,21 @@ typedef glm::vec3 glv3;
 typedef glm::mat4 glm4;
 typedef glm::vec2 glv2;
 
+namespace debug
+{
+	void LogMatrix(glm4* matrix)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				std::cout << (*matrix)[i][j] << " | ";
+			}
+			std::cout << std::endl;
+		}
+	}
+}
+
 namespace gloom
 {
 	void NewFile(const char* path)
@@ -254,6 +269,7 @@ namespace gloom
 			this->tid = texture_id;
 		}
 		void Draw(glv2 xy);
+		void Draw();
 		glm::vec2 GetCenter()
 		{
 			return glm::vec2(scale[0] * width / 2, scale[1] * height / 2);
@@ -854,7 +870,7 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 void gloom::Sprite2D::Draw(glv2 xy)
 {
 	glm4 model(1.f);
-	model = glm::translate(model, glv3(this->position[0], this->position[1], 0.f));
+	model = glm::translate(model, glv3(xy[0], xy[1], 0.f));
 	if (this->angle != 0)
 	{
 		model = glm::translate(model, glv3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
@@ -863,10 +879,35 @@ void gloom::Sprite2D::Draw(glv2 xy)
 	}
 	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
 	WriteToShader(matrix_projection_location, &orthographic_matrix.Get());
-	WriteToShader(matrix_model_location, &model);
+	WriteToShader(matrix_model_location, &identity_matrix);
 	WriteToShader(matrix_view_location, &identity_matrix);
+	WriteToShader(int_n_lights_location, -1);
+	glBindVertexArray(this->id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
+
+void gloom::Sprite2D::Draw()
+{
+	glBindVertexArray(this->id);
+	glBindTexture(GL_TEXTURE_2D, this->tid);
+	glm4 model(1.f);
+	model = glm::translate(model, glv3(this->position[0], this->position[1], 0.f));
+	if (this->angle != 0)
+	{
+		model = glm::translate(model, glv3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
+		model = glm::rotate(model, glm::radians(this->angle), glv3(0.f, 0.f, 1.f));
+		model = glm::translate(model, glv3(-1.f * (this->point_of_rotation[0]), -1.f * (this->point_of_rotation[1]), 0.f));
+	}
+	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
+	glm4 temp = glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix_orthographic"), 1, false, &temp[0][0]);
+	WriteToShader(matrix_ortographic_location, &temp);
+	WriteToShader(matrix_model_location, &identity_matrix);
+	WriteToShader(matrix_view_location, &identity_matrix);
+	WriteToShader(int_n_lights_location, -1);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
 
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
@@ -1142,7 +1183,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	else
 		local_window = glfwCreateWindow(width, height, window_name, NULL, NULL);
 	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.0f));
-	orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, -1.f, 1.f));
+	orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f));
 	glfwMakeContextCurrent(local_window);
 	if (!local_window)
 	{
@@ -1241,8 +1282,6 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	{
 		std::string temp_diffuse = "texture_diffuse";
 		std::string temp_specular = "texture_specular";
-		//
-		//
 		sampler_diffuse_location[i].val = glGetUniformLocation(shader, (temp_diffuse + std::to_string(i + 1)).c_str());
 		sampler_specular_location[i].val = glGetUniformLocation(shader, (temp_specular + std::to_string(i + 1)).c_str());
 	}
@@ -1252,11 +1291,6 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	glfwSetCursorPosCallback(local_window, CursorPosCallback);
 	auto language = TextEditor::LanguageDefinition::CPlusPlus();
 	editor.SetLanguageDefinition(language);
-	glv3 direction(0.f);
-	direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
-	direction.y = std::sin(glm::radians(pitch));
-	direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
-	direction = glm::normalize(direction);
 	return local_window;
 }
 
