@@ -201,6 +201,11 @@ namespace gloom
 		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
 		glm::vec2 position = glm::vec2(0.f, 0.f);
 		glm::vec2 point_of_rotation = glm::vec2(0, 0);
+		unsigned int element_indices[6] =
+		{
+			0, 2, 3,
+			0, 1, 2,
+		};
 		Sprite2D(const char* path, bool transparency = false)
 		{
 			unsigned int texture_id;
@@ -226,41 +231,43 @@ namespace gloom
 			}
 			stbi_image_free(data);
 
-			float vertices[18] =
+			float vertices[12] =
 			{
-				1.f, 1.f, 0.f,
+				0.f, 0.f, 0.f,
 				1.f, 0.f, 0.f,
-				0.f, 0.f, 0.f,
-
-				0.f, 0.f, 0.f,
 				1.f, 1.f, 0.f,
-				0.f, 1.f, 0.f,
+				0.f, 1.f, 0.f
 			};
 
 			float texture_coordinates[12] =
 			{
-				1.0f, 0.0f,
-				1.0f, 1.0f,
-				0.0f, 1.0f,
-
-				0.f, 1.f,
-				1.f, 0.f,
 				0.f, 0.f,
+				1.f, 0.f,
+				1.f, 1.f,
+				0.f, 1.f,
 			};
 
-			unsigned int VAO, VBO, TCBO;
-			glGenBuffers(1, &VBO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			unsigned int element_indices[6] =
+			{
+				0, 2, 3,
+				0, 1, 2,
+			};
 
+			unsigned int VAO, VBO, TCBO, EBO;
 			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glGenBuffers(1, &EBO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBindVertexArray(VAO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element_indices), &element_indices[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 			glGenBuffers(1, &TCBO);
 			glBindBuffer(GL_ARRAY_BUFFER, TCBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinates), texture_coordinates, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinates), &texture_coordinates[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 			this->id = VAO;
@@ -883,7 +890,7 @@ void gloom::Sprite2D::Draw(glv2 xy)
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
 	glBindVertexArray(this->id);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawElements(GL_TRIANGLES, 6, GL_FLOAT, this->element_indices);
 }
 
 void gloom::Sprite2D::Draw()
@@ -905,9 +912,8 @@ void gloom::Sprite2D::Draw()
 	WriteToShader(matrix_model_location, &identity_matrix);
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
-
 
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
@@ -1288,6 +1294,7 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_BLEND);
 	glfwSetCursorPosCallback(local_window, CursorPosCallback);
 	auto language = TextEditor::LanguageDefinition::CPlusPlus();
 	editor.SetLanguageDefinition(language);

@@ -104,7 +104,7 @@ int main()
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
-		stewie.Draw(glv2(0, 0));
+		stewie.Draw();
 		//render
 		if (gloom::mouse_button_right_held)
 		{
