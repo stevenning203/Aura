@@ -1,5 +1,5 @@
 #region vertex
-#version 330 core
+#version 410 core
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec3 vertex_normal;
 layout(location = 2) in vec2 texture_coordinate_in;
@@ -18,9 +18,9 @@ void main()
 	normal = vertex_normal;
 	texture_coordinate = texture_coordinate_in;
 	fragment_position = vec3(matrix_model * vec4(vertex_position, 1.f));
-	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position, 1.f);
-	gl_Position = matrix_model * vec4(vertex_position, 1.f);
-	//gl_Position = vec4(vertex_position, 1.f);
+	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
+	//gl_Position = matrix_projection * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
+	//gl_Position = vec4(vertex_position.xy, 0.f, 1.f);
 }
 
 #region fragment

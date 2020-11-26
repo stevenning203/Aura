@@ -53,7 +53,7 @@ namespace debug
 		{
 			for (int j = 0; j < 4; j++)
 			{
-				std::cout << (*matrix)[i][j] << " | ";
+				std::cout << (*matrix)[j][i] << " | ";
 			}
 			std::cout << std::endl;
 		}
@@ -198,14 +198,9 @@ namespace gloom
 		unsigned int tid = 0;
 		float width = 0, height = 0;
 		float angle = 0;
-		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
+		glm::vec2 scale = glm::vec2(1.f);
 		glm::vec2 position = glm::vec2(0.f, 0.f);
 		glm::vec2 point_of_rotation = glm::vec2(0, 0);
-		unsigned int element_indices[6] =
-		{
-			0, 2, 3,
-			0, 1, 2,
-		};
 		Sprite2D(const char* path, bool transparency = false)
 		{
 			unsigned int texture_id;
@@ -890,7 +885,7 @@ void gloom::Sprite2D::Draw(glv2 xy)
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
 	glBindVertexArray(this->id);
-	glDrawElements(GL_TRIANGLES, 6, GL_FLOAT, this->element_indices);
+	glDrawElements(GL_TRIANGLES, 4, GL_FLOAT, 0);
 }
 
 void gloom::Sprite2D::Draw()
@@ -906,9 +901,16 @@ void gloom::Sprite2D::Draw()
 		model = glm::translate(model, glv3(-1.f * (this->point_of_rotation[0]), -1.f * (this->point_of_rotation[1]), 0.f));
 	}
 	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
-	glm4 temp = glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f);
-	WriteToShader(matrix_ortographic_location, &identity_matrix);
-	WriteToShader(matrix_model_location, &identity_matrix);
+	glm4 temp = glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, -1.f, 1.f);
+	temp = glm4(1.f);
+	model = glm4(1.f);
+	//temp[2][2] = 1.f;
+	if ((int)GetTime() % 50 == 0)
+	{
+		debug::LogMatrix(&temp);
+	}
+	WriteToShader(matrix_projection_location, &temp);
+	WriteToShader(matrix_model_location, &model);
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

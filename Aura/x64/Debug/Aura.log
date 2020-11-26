@@ -1,25 +1,25 @@
 ﻿  main.cpp
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(274,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(275,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(349,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(269,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(270,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(344,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(350,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(345,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(529,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(524,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(529,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(524,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(948,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(950,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

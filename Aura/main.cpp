@@ -77,7 +77,7 @@ int main()
 {
 	gloom::Init(1920, 1080, "Aura");
 
-	gloom::Sprite2D stewie("models/2d/takeaguess.png", true);
+	gloom::Sprite2D stewie("models/2d/ryanbarian.png", true);
 
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
@@ -104,7 +104,6 @@ int main()
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
-		stewie.position[0] = -1.f;
 		stewie.Draw();
 		//render
 		if (gloom::mouse_button_right_held)
