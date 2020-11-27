@@ -18,8 +18,8 @@ void main()
 	normal = vertex_normal;
 	texture_coordinate = texture_coordinate_in;
 	fragment_position = vec3(matrix_model * vec4(vertex_position, 1.f));
-	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
-	gl_Position = matrix_projection * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
+	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position, 1.f);
+	//gl_Position = matrix_projection * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
 	//gl_Position = vec4(vertex_position.xy, 0.f, 1.f);
 }
 
@@ -71,7 +71,7 @@ vec3 CalculateLighting(Light light_source, vec3 fragment_position)
 void main()
 {
 	vec4 texture_fragment = vec4(texture(texture_diffuse1, texture_coordinate));
-	vec4 light_multiplier = vec4(ambient_strength);
+	vec4 light_multiplier = vec4(vec3(ambient_strength), 1.f);
 	for (int i = 0; i < n_lights; i++)
 	{
 		light_multiplier += vec4(CalculateLighting(lights[i], fragment_position), 0.f);

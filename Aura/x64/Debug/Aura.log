@@ -11,15 +11,15 @@ C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(355,46): warnin
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(534,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(536,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(534,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(536,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(959,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(962,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe
