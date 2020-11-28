@@ -1,4 +1,25 @@
 #region vertex
+#version 330 core
+
+layout(location = 0) in vec3 vertex_position;
+
+void main()
+{
+	gl_Position = vec4(vertex_position, 1.f);
+}
+
+#region fragment
+#version 330 core
+
+out vec3 fragment_color;
+
+void main()
+{
+	fragment_color = vec3(1.f, 0.25f, 0.5f);
+}
+
+/*
+#region vertex
 #version 410 core
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec3 vertex_normal;
@@ -82,3 +103,4 @@ void main()
 	}
 	fragment_color = texture_fragment * light_multiplier;
 }
+*/

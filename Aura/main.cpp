@@ -19,6 +19,7 @@ namespace state
 	bool compile_menu_open = false;
 	bool theme_menu_open = false;
 	bool text_editor_open = true;
+	bool about_menu_open = false;
 }
 
 namespace buffers
@@ -84,13 +85,8 @@ int main()
 	std::vector<aura::Scene> scenes;
 	
 	aura::Scene main_scene("Main");
-	aura::Scene* scene_ptr = &main_scene;
-	aura::SnapShot snapshot(&main_scene);
 	gloom::Camera main_camera;
-	main_camera.SetPos(glv3(3.f, 3.f, 3.f));
 	gloom::SetCurrentCamera(&main_camera);
-
-	main_scene.AddCamera(main_camera);
 
 	aura::SetActiveScene(&main_scene);
 
@@ -104,7 +100,6 @@ int main()
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();
-		stewie.Draw();
 		//render
 		if (gloom::mouse_button_right_held)
 		{
@@ -192,6 +187,10 @@ int main()
 				}
 				if (ImGui::BeginMenu("Help"))
 				{
+					if (ImGui::MenuItem("About"))
+					{
+						state::about_menu_open = true;
+					}
 					if (ImGui::MenuItem("Documentation"))
 					{
 						ShellExecute(0, 0, L"http://stevenning203.github.io/Aura-Documentation/", 0, 0, SW_SHOW);
@@ -200,7 +199,7 @@ int main()
 				}
 				if (ImGui::Button("|>"))
 				{
-					snapshot.Set(main_scene);
+
 				}
 				ImGui::EndMainMenuBar();
 			}
@@ -268,6 +267,17 @@ int main()
 				if (ImGui::Button("Close"))
 				{
 					state::options_menu_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::about_menu_open)
+			{
+				ImGui::Begin("About");
+				ImGui::Text("Aura was developed by Steven Ning with C++ and OpenGL.");
+				ImGui::Text("Visit the documentation page for help!");
+				if (ImGui::Button("Close"))
+				{
+					state::about_menu_open = false;
 				}
 				ImGui::End();
 			}
