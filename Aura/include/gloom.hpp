@@ -120,6 +120,10 @@ namespace gloom
 		{
 			return pos;
 		}
+		glv3* GetPosPointer()
+		{
+			return &(this->pos);
+		}
 		void SetTrg(glm::vec3 target)
 		{
 			this->trg = target;
@@ -132,6 +136,10 @@ namespace gloom
 		glm::mat4 GetMatrix()
 		{
 			return view_matrix;
+		}
+		glm::mat4* GetMatrixPointer()
+		{
+			return &(this->view_matrix);
 		}
 	};
 
@@ -163,6 +171,10 @@ namespace gloom
 		{
 			return this->internal;
 		}
+		glm::mat4* GetPointer()
+		{
+			return &(this->internal);
+		}
 	};
 
 	class ProjMat
@@ -176,6 +188,10 @@ namespace gloom
 		glm::mat4 Get()
 		{
 			return this->internal;
+		}
+		glm::mat4* GetPointer()
+		{
+			return &(this->internal);
 		}
 	};
 
@@ -392,6 +408,8 @@ namespace gloom
 	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
 	
 	UniformLocation sampler_diffuse_location[k_max_n_diffuse], sampler_specular_location[k_max_n_specular];
+
+	UniformLocation float_ambient_strength, float_specular_strength;
 
 	float time0 = 0, time1 = 0, time2 = 0;
 
@@ -892,7 +910,7 @@ void gloom::Sprite2D::Draw(glv2 xy)
 		model = glm::translate(model, glv3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
 	}
 	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
-	WriteToShader(matrix_projection_location, &orthographic_matrix.Get());
+	WriteToShader(matrix_projection_location, orthographic_matrix.GetPointer());
 	WriteToShader(matrix_model_location, &identity_matrix);
 	WriteToShader(matrix_view_location, &identity_matrix);
 	WriteToShader(int_n_lights_location, -1);
@@ -952,12 +970,12 @@ void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
-	WriteToShader(matrix_projection_location, &perspective_matrix.Get());
-	WriteToShader(matrix_model_location, &mod.Get());
-	WriteToShader(matrix_view_location, &current_camera->GetMatrix());
+	WriteToShader(matrix_projection_location, perspective_matrix.GetPointer());
+	WriteToShader(matrix_model_location, mod.GetPointer());
+	WriteToShader(matrix_view_location, current_camera->GetMatrixPointer());
 	WriteToShader(light_sources);
 	WriteToShader(int_n_lights_location, (int)light_sources.size());
-	WriteToShader(vector_camera_location, &current_camera->GetPos());
+	WriteToShader(vector_camera_location, current_camera->GetPosPointer());
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -1284,6 +1302,10 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	matrix_ortographic_location.val = glGetUniformLocation(shader, "matrix_orthographic");
 	int_n_lights_location.val = glGetUniformLocation(shader, "n_lights");
 	vector_camera_location.val = glGetUniformLocation(shader, "camera_position");
+	float_ambient_strength.val = glGetUniformLocation(shader, "ambient_strength");
+	float_specular_strength.val = glGetUniformLocation(shader, "specular_strength");
+	WriteToShader(float_ambient_strength, 0.1f);
+	WriteToShader(float_specular_strength, 0.5f);
 	std::string temp_lights = "lights[";
 	std::string temp_location = "].position";
 	std::string temp_color = "].color";

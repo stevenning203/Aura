@@ -1,2 +1,25 @@
 ﻿  main.cpp
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(295,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(296,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(370,45): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(371,46): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(554,52): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(554,31): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\steve\Documents\Development\Aura\Aura\include\gloom.hpp(980,65): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Aura.vcxproj -> C:\Users\steve\Documents\Development\Aura\x64\Debug\Aura.exe

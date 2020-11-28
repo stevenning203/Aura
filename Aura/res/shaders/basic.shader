@@ -1,25 +1,4 @@
 #region vertex
-#version 330 core
-
-layout(location = 0) in vec3 vertex_position;
-
-void main()
-{
-	gl_Position = vec4(vertex_position, 1.f);
-}
-
-#region fragment
-#version 330 core
-
-out vec3 fragment_color;
-
-void main()
-{
-	fragment_color = vec3(1.f, 0.25f, 0.5f);
-}
-
-/*
-#region vertex
 #version 410 core
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec3 vertex_normal;
@@ -70,9 +49,8 @@ uniform Light lights[100];
 uniform int n_lights;
 uniform int object_specularity;
 uniform vec3 camera_position;
-
-float ambient_strength = 0.1f;
-float specular_strength = 0.5f;
+uniform float ambient_strength;
+uniform float specular_strength;
 
 vec3 CalculateLighting(Light light_source, vec3 fragment_position)
 {
@@ -103,4 +81,3 @@ void main()
 	}
 	fragment_color = texture_fragment * light_multiplier;
 }
-*/

@@ -35,6 +35,9 @@ namespace buffers
 	char object_name[k_char_input_max];
 	char script_location[k_char_input_max];
 
+	float shader_ambient_strength = 0.1f;
+	float shader_specular_strength = 0.5f;
+
 	bool flip_uvs = true;
 
 	void Clear(char* buffer)
@@ -197,10 +200,6 @@ int main()
 					}
 					ImGui::EndMenu();
 				}
-				if (ImGui::Button("|>"))
-				{
-
-				}
 				ImGui::EndMainMenuBar();
 			}
 			if (state::compile_menu_open)
@@ -260,6 +259,30 @@ int main()
 					if (ImGui::SliderInt("Target FPS", &gloom::target_fps, 24, 240))
 					{
 
+					}
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("Shader"))
+				{
+					if (ImGui::InputFloat("Ambient constant", &buffers::shader_ambient_strength))
+					{
+						gloom::WriteToShader(gloom::float_ambient_strength, buffers::shader_ambient_strength);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Reset AC"))
+					{
+						buffers::shader_ambient_strength = 0.1f;
+						gloom::WriteToShader(gloom::float_ambient_strength, buffers::shader_ambient_strength);
+					}
+					if (ImGui::InputFloat("Specular constant", &buffers::shader_specular_strength))
+					{
+						gloom::WriteToShader(gloom::float_specular_strength, buffers::shader_specular_strength);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Reset SC"))
+					{
+						buffers::shader_specular_strength = 0.5f;
+						gloom::WriteToShader(gloom::float_specular_strength, buffers::shader_specular_strength);
 					}
 					ImGui::EndTabItem();
 				}
