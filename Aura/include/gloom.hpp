@@ -432,6 +432,7 @@ namespace gloom
 	bool vertical_sync = true;
 
 	TextEditor editor;
+	std::ifstream editor_stream;
 	
 	void SetCurrentCamera(Camera* camera_set);
 

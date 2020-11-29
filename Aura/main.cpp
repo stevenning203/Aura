@@ -20,6 +20,9 @@ namespace state
 	bool theme_menu_open = false;
 	bool text_editor_open = true;
 	bool about_menu_open = false;
+	bool load_script_menu_open = false;
+	bool load_script_error_menu_open = false;
+	bool load_script_help_menu_open = false;
 }
 
 namespace buffers
@@ -214,8 +217,101 @@ int main()
 			}
 			if (state::text_editor_open)
 			{
-				ImGui::Begin("Text Editor", nullptr, aura::aura_imgui_static_window);
+				ImGui::Begin("Text Editor", nullptr, aura::aura_imgui_static_window | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+				if (ImGui::BeginMenuBar())
+				{
+					if (ImGui::BeginMenu("File"))
+					{
+						if (ImGui::MenuItem("New"))
+						{
+
+						}
+						if (ImGui::MenuItem("Save"))
+						{
+
+						}
+						if (ImGui::MenuItem("Open"))
+						{
+							state::load_script_menu_open = true;
+						}
+						ImGui::EndMenu();
+					}
+					if (ImGui::BeginMenu("Edit"))
+					{
+						bool ro = gloom::editor.IsReadOnly();
+						if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
+							gloom::editor.SetReadOnly(ro);
+						ImGui::Separator();
+
+						if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && gloom::editor.CanUndo()))
+							gloom::editor.Undo();
+						if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && gloom::editor.CanRedo()))
+							gloom::editor.Redo();
+
+						ImGui::Separator();
+
+						if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, gloom::editor.HasSelection()))
+							gloom::editor.Copy();
+						if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && gloom::editor.HasSelection()))
+							gloom::editor.Cut();
+						if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && gloom::editor.HasSelection()))
+							gloom::editor.Delete();
+						if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
+							gloom::editor.Paste();
+
+						ImGui::Separator();
+
+						if (ImGui::MenuItem("Select all", nullptr, nullptr))
+							gloom::editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(gloom::editor.GetTotalLines(), 0));
+
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenuBar();
+				}
 				auto cpos = gloom::editor.GetCursorPosition();
+				if (buffers::script_location[0] != 0)
+				{
+					ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, gloom::editor.GetTotalLines(), gloom::editor.IsOverwrite() ? "Ovr" : "Ins", gloom::editor.CanUndo() ? "*" : " ", gloom::editor.GetLanguageDefinition().mName.c_str(), buffers::script_location);
+				}
+				gloom::editor.Render("TE");
+				ImGui::End();
+			}
+			if (state::load_script_menu_open)
+			{
+				ImGui::Begin("Load Scripts");
+				ImGui::InputText("Script Location", buffers::script_location, sizeof(buffers::script_location));
+				ImGui::SameLine();
+				if (ImGui::Button("?"))
+				{
+					state::load_script_help_menu_open = true;
+				}
+				if (ImGui::Button("Load"))
+				{
+					gloom::editor_stream = std::ifstream(buffers::script_location);
+					if (gloom::editor_stream.good())
+					{
+						std::string str((std::istreambuf_iterator<char>(gloom::editor_stream)), std::istreambuf_iterator<char>());
+						gloom::editor.SetText(str);
+					}
+					else
+					{
+						state::load_script_error_menu_open = true;
+					}
+				}
+				if (ImGui::Button("Close"))
+				{
+					state::load_script_menu_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::load_script_help_menu_open)
+			{
+				ImGui::Begin("Help for loading scripts");
+				ImGui::Text("Default location is the place where Aura.exe is placed.");
+				if (ImGui::Button("Close"))
+				{
+					state::load_script_help_menu_open = false;
+				}
 				ImGui::End();
 			}
 			if (state::options_menu_open)
@@ -341,6 +437,16 @@ int main()
 				if (ImGui::Button("Close"))
 				{
 					state::new_file_menu_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::load_script_error_menu_open)
+			{
+				ImGui::Begin("Error");
+				ImGui::Text("Error: file does not exist or ifstream C++ error");
+				if (ImGui::Button("OK"))
+				{
+					state::load_script_error_menu_open = false;
 				}
 				ImGui::End();
 			}
