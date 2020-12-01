@@ -228,7 +228,8 @@ int main()
 						}
 						if (ImGui::MenuItem("Save"))
 						{
-
+							std::string buffer = gloom::editor.GetText();
+							ap::OverwriteString(buffers::script_location, buffer);
 						}
 						if (ImGui::MenuItem("Open"))
 						{

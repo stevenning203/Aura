@@ -7,6 +7,17 @@ namespace ap
 	{
 		throw std::invalid_argument(text);
 	}
+	void OverwriteString(std::string path, std::string& cont)
+	{
+		std::ifstream c(path);
+		std::ofstream o("temp.cpp");
+		std::remove(path.c_str());
+		o << cont;
+		if (std::rename("temp.cpp", path.c_str()) != 0)
+		{
+			
+		}
+	}
 	void ModelParse(std::string line)
 	{
 		if (line.substr(0, 12) == ">>NewModel()")
