@@ -23,6 +23,8 @@ namespace state
 	bool load_script_menu_open = false;
 	bool load_script_error_menu_open = false;
 	bool load_script_help_menu_open = false;
+	bool save_success_popup_open = false;
+	bool save_failure_popup_open = false;
 }
 
 namespace buffers
@@ -215,6 +217,26 @@ int main()
 				}
 				ImGui::End();
 			}
+			if (state::save_success_popup_open)
+			{
+				ImGui::Begin("Saved");
+				ImGui::Text("File has succesfully been saved");
+				if (ImGui::Button("OK"))
+				{
+					state::save_success_popup_open = false;
+				}
+				ImGui::End();
+			}
+			if (state::save_failure_popup_open)
+			{
+				ImGui::Begin("Saved failure");
+				ImGui::Text("Error in saving file");
+				if (ImGui::Button("OK"))
+				{
+					state::save_failure_popup_open = false;
+				}
+				ImGui::End();
+			}
 			if (state::text_editor_open)
 			{
 				ImGui::Begin("Text Editor", nullptr, aura::aura_imgui_static_window | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -229,7 +251,14 @@ int main()
 						if (ImGui::MenuItem("Save"))
 						{
 							std::string buffer = gloom::editor.GetText();
-							ap::OverwriteString(buffers::script_location, buffer);
+							if (!ap::OverwriteString(buffers::script_location, buffer))
+							{
+								state::save_success_popup_open = true;
+							}
+							else
+							{
+								state::save_failure_popup_open = true;
+							}
 						}
 						if (ImGui::MenuItem("Open"))
 						{
