@@ -25,6 +25,7 @@ namespace state
 	bool load_script_help_menu_open = false;
 	bool save_success_popup_open = false;
 	bool save_failure_popup_open = false;
+	bool new_script_menu_open = false;
 }
 
 namespace buffers
@@ -91,6 +92,7 @@ int main()
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::vector<aura::Scene> scenes;
+	std::vector<gloom::Particle> particles;
 	
 	aura::Scene main_scene("Main");
 	gloom::Camera main_camera;
@@ -237,6 +239,12 @@ int main()
 				}
 				ImGui::End();
 			}
+			if (state::new_script_menu_open)
+			{
+				ImGui::Begin("New Script");
+
+				ImGui::End();
+			}
 			if (state::text_editor_open)
 			{
 				ImGui::Begin("Text Editor", nullptr, aura::aura_imgui_static_window | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -246,7 +254,7 @@ int main()
 					{
 						if (ImGui::MenuItem("New"))
 						{
-
+							state::new_script_menu_open = true;
 						}
 						if (ImGui::MenuItem("Save"))
 						{

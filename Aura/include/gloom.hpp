@@ -44,6 +44,8 @@ typedef glm::vec4 glv4;
 typedef glm::vec3 glv3;
 typedef glm::mat4 glm4;
 typedef glm::vec2 glv2;
+typedef unsigned int u_int;
+typedef unsigned int gl_id;
 
 namespace debug
 {
@@ -335,6 +337,67 @@ namespace gloom
 		void SetupMesh();
 	};
 
+	class Particle
+	{
+	private:
+		glv3 position = glv3(0.f);
+		glv3 acceleration = glv3(0.f);
+		glv3 velocity = glv3(0.f);
+		float life = 100.f;
+		float decay = 1.f;
+	public:
+		Particle(glv3 accel, glv3 vel, float life, float decay)
+		{
+			this->acceleration = accel;
+			this->velocity = vel;
+			this->life = life;
+			this->decay = decay;
+		}
+		bool Update()
+		{
+			if (this->life <= 0)
+			{
+				return false;
+			}
+			this->velocity = this->velocity + this->acceleration;
+			this->position = this->position + this->velocity;
+			this->life -= this->decay;
+			return true;
+		}
+		void SetAcceleration(glv3 v3)
+		{
+			this->acceleration = v3;
+		}
+		glv3 GetAcceleration()
+		{
+			return this->acceleration;
+		}
+		void SetVelocity(glv3 v3)
+		{
+			this->velocity = velocity;
+		}
+		glv3 GetVelocity()
+		{
+			return this->velocity;
+		}
+		void SetLife(float f)
+		{
+			this->life = f;
+		}
+		float GetLife()
+		{
+			return this->life;
+		}
+		void SetDecay(float d)
+		{
+			this->decay = decay;
+		}
+		float GetDecay()
+		{
+			return this->decay;
+		}
+	};
+
 	class Model
 	{
 	public:
@@ -431,6 +494,8 @@ namespace gloom
 
 	bool vertical_sync = true;
 
+	gl_id default_shader;
+
 	TextEditor editor;
 	std::ifstream editor_stream;
 	
@@ -459,6 +524,12 @@ namespace gloom
 	void Poll();
 
 	void FlipDisplay();
+
+	void StateChangeShader(gl_id shader_id);
+
+	void SetDefaultShader(gl_id shader_id);
+
+	void ResetShaderDefault();
 
 	bool QueueExit();
 
@@ -597,6 +668,21 @@ void gloom::Poll()
 double gloom::GetTime()
 {
 	return glfwGetTime();
+}
+
+void gloom::StateChangeShader(gl_id shader_id)
+{
+	glUseProgram(shader_id);
+}
+
+void gloom::SetDefaultShader(gl_id shader_id)
+{
+	default_shader = shader_id;
+}
+
+void gloom::ResetShaderDefault()
+{
+	glUseProgram(default_shader);
 }
 
 void gloom::ClearBuffer()
