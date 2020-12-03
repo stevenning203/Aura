@@ -26,6 +26,8 @@ namespace state
 	bool save_success_popup_open = false;
 	bool save_failure_popup_open = false;
 	bool new_script_menu_open = false;
+	bool compile_success_menu_open = false;
+	bool compile_success_failure_open = false;
 }
 
 namespace buffers
@@ -212,7 +214,10 @@ int main()
 			if (state::compile_menu_open)
 			{
 				ImGui::Begin("Compiler");
-				ImGui::Button("Compile");
+				if (ImGui::Button("Compile"))
+				{
+					system("g++");
+				}
 				if (ImGui::Button("Close"))
 				{
 					state::compile_menu_open = false;
@@ -243,6 +248,10 @@ int main()
 			{
 				ImGui::Begin("New Script");
 
+				if (ImGui::Button("Close"))
+				{
+					state::new_script_menu_open = false;
+				}
 				ImGui::End();
 			}
 			if (state::text_editor_open)

@@ -396,6 +396,10 @@ namespace gloom
 		{
 			return this->decay;
 		}
+		void Draw()
+		{
+
+		}
 	};
 
 	class Model
