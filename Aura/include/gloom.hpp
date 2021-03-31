@@ -1,14 +1,5 @@
-#ifndef GLOOM_IMPORTED
-#define GLOOM_IMPORTED
+#pragma once
 #define STB_IMAGE_IMPLEMENTATION
-
-constexpr int k_max_n_lights = 100;
-constexpr int k_max_n_diffuse = 10;
-constexpr int k_max_n_specular = 10;
-constexpr int k_max_n_normal = 10;
-constexpr int k_max_n_height = 10;
-constexpr float k_pi = 3.1415926f;
-constexpr double k_max_fps_inv = (double)1000 / (double)24;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -18,14 +9,15 @@ constexpr double k_max_fps_inv = (double)1000 / (double)24;
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include "stb_image.h"
-#include "glad.h"
-#include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glad.c"
-#include "TextEditor.h"
 
+#include "gloomcogs/shader.hpp"
+#include "gloomcogs/const.hpp"
+#include "gloomcogs/camera.hpp"
+#include "gloomcogs/classes.hpp"
+#include "gloomcogs/window.hpp"
+#include "gloomcogs/2d.hpp"
+
+#include "TextEditor.h"
 #include <string>
 #include <fstream>
 #include <vector>
@@ -40,16 +32,9 @@ constexpr double k_max_fps_inv = (double)1000 / (double)24;
 #include <thread>
 #include <direct.h>
 
-typedef glm::vec4 glv4;
-typedef glm::vec3 glv3;
-typedef glm::mat4 glm4;
-typedef glm::vec2 glv2;
-typedef unsigned int u_int;
-typedef unsigned int gl_id;
-
 namespace debug
 {
-	void LogMatrix(glm4* matrix)
+	void LogMatrix(glm::mat4* matrix)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -97,354 +82,6 @@ namespace gloom
 	}
 
 	unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false);
-	enum class Gloonum
-	{
-		k_gloom_mode_freecam, k_gloom_camera_mode_disabled, k_gloom_camera_mode_limited,
-		k_gloom_mouse_mode_show, k_gloom_mouse_mode_hide, k_gloom_texture_diffuse, k_gloom_texture_specular,
-		k_gloom_texture_normal, k_gloom_texture_null, k_gloom_texture_missing,
-	};
-
-	class Camera
-	{
-	private:
-		float fov = 90.f;
-		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
-		glm::vec3 trg = glm::vec3(0.f, 0.f, 0.f);
-		glm::mat4 view_matrix = glm::mat4(1.0f);
-		Gloonum mode = Gloonum::k_gloom_mode_freecam;
-	public:
-		void SetPos(glm::vec3 pos)
-		{
-			this->pos = pos;
-			this->view_matrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
-		}
-		glv3 GetPos()
-		{
-			return pos;
-		}
-		glv3* GetPosPointer()
-		{
-			return &(this->pos);
-		}
-		void SetTrg(glm::vec3 target)
-		{
-			this->trg = target;
-			this->view_matrix = glm::lookAt(this->pos, this->trg, glm::vec3(0.f, 1.f, 0.f));
-		}
-		void SetMode(Gloonum mode)
-		{
-			this->mode = mode;
-		}
-		glm::mat4 GetMatrix()
-		{
-			return view_matrix;
-		}
-		glm::mat4* GetMatrixPointer()
-		{
-			return &(this->view_matrix);
-		}
-	};
-
-	class ModMat
-	{
-		glm::mat4 internal = glm::mat4(1.0f);
-	public:
-		void Set(glm::mat4 matrix)
-		{
-			this->internal = matrix;
-		}
-		void Reset()
-		{
-			this->internal = glm::mat4(1.f);
-		}
-		void XYZ(glm::vec3 offset)
-		{
-			this->internal = glm::translate(this->internal, offset);
-		}
-		void Rotation(float degrees, glm::vec3 axes)
-		{
-			this->internal = glm::rotate(this->internal, glm::radians(degrees), axes);
-		}
-		void Scale(glm::vec3 axes)
-		{
-			this->internal = glm::scale(this->internal, axes);
-		}
-		glm::mat4 Get()
-		{
-			return this->internal;
-		}
-		glm::mat4* GetPointer()
-		{
-			return &(this->internal);
-		}
-	};
-
-	class ProjMat
-	{
-		glm::mat4 internal = glm::mat4(1.0f);
-	public:
-		void Set(glm::mat4 matrix)
-		{
-			this->internal = matrix;
-		}
-		glm::mat4 Get()
-		{
-			return this->internal;
-		}
-		glm::mat4* GetPointer()
-		{
-			return &(this->internal);
-		}
-	};
-
-	class UniformLocation
-	{
-	public:
-		int val;
-	};
-
-	struct Light
-	{
-		glv3 color;
-		glv3 direction;
-		glv3 attenuation;
-		glv3 position;
-		float theta;
-		Light(glv3 color = glv3(1.f, 1.f, 0.85f), glv3 direction = glv3(0.f, 0.f, -1.f), glv3 attenuation = glv3(1.f), glv3 position = glv3(0.f), float theta = 1.f)
-		{
-			this->color = color;
-			this->direction = direction;
-			this->attenuation = attenuation;
-			this->position = position;
-			this->theta = theta;
-		}
-	};
-
-	struct Sprite2D
-	{
-		unsigned int id = 0;
-		unsigned int tid = 0;
-		float width = 0, height = 0;
-		float angle = 0;
-		glm::vec2 scale = glm::vec2(1.f);
-		glm::vec2 position = glm::vec2(0.f, 0.f);
-		glm::vec2 point_of_rotation = glm::vec2(0, 0);
-		Sprite2D(const char* path, bool transparency = false)
-		{
-			unsigned int texture_id;
-			glGenTextures(1, &texture_id);
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			int width, height, n;
-			unsigned char* data = stbi_load(path, &width, &height, &n, 0);
-			if (data)
-			{
-				if (transparency)
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-				else
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				glGenerateMipmap(GL_TEXTURE_2D);
-			}
-			else
-			{
-				std::cout << "Failed to load texture" << std::endl;
-			}
-			stbi_image_free(data);
-
-			float vertices[12] =
-			{
-				0.f, 0.f, 0.f,
-				1.f, 0.f, 0.f,
-				1.f, 1.f, 0.f,
-				0.f, 1.f, 0.f
-			};
-
-			float texture_coordinates[12] =
-			{
-				0.f, 0.f,
-				1.f, 0.f,
-				1.f, 1.f,
-				0.f, 1.f,
-			};
-
-			unsigned int element_indices[6] =
-			{
-				0, 2, 3,
-				0, 1, 2,
-			};
-
-			unsigned int VAO, VBO, TCBO, EBO;
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
-			glGenBuffers(1, &EBO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBindVertexArray(VAO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element_indices), &element_indices[0], GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-			glGenBuffers(1, &TCBO);
-			glBindBuffer(GL_ARRAY_BUFFER, TCBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinates), &texture_coordinates[0], GL_STATIC_DRAW);
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-			this->id = VAO;
-			this->width = width;
-			this->height = height;
-			this->tid = texture_id;
-		}
-		void Draw(glv2 xy);
-		void Draw();
-		glm::vec2 GetCenter()
-		{
-			return glm::vec2(scale[0] * width / 2, scale[1] * height / 2);
-		}
-	};
-
-	struct Vertex
-	{
-		glm::vec3 pos;
-		glm::vec2 norm;
-		glm::vec2 tc;
-		glm::vec3 tangent;
-		glm::vec3 bitangent;
-	};
-
-	struct Texture
-	{
-		unsigned int id = 0;
-		Gloonum enum_type = Gloonum::k_gloom_texture_null;
-		std::string type;
-		std::string path;
-	};
-
-	struct Mesh
-	{
-	public:
-		std::vector<Vertex>       vertices;
-		std::vector<unsigned int> indices;
-		std::vector<Texture>      textures;
-
-		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-		void Draw(ModMat mod, std::vector<Light> &light_sources);
-	private:
-		unsigned int VAO, VBO, EBO;
-		void SetupMesh();
-	};
-
-	class Particle
-	{
-	private:
-		glv3 position = glv3(0.f);
-		glv3 acceleration = glv3(0.f);
-		glv3 velocity = glv3(0.f);
-		float life = 100.f;
-		float decay = 1.f;
-	public:
-		Particle(glv3 accel, glv3 vel, float life, float decay)
-		{
-			this->acceleration = accel;
-			this->velocity = vel;
-			this->life = life;
-			this->decay = decay;
-		}
-		bool Update()
-		{
-			if (this->life <= 0)
-			{
-				return false;
-			}
-			this->velocity = this->velocity + this->acceleration;
-			this->position = this->position + this->velocity;
-			this->life -= this->decay;
-			return true;
-		}
-		void SetAcceleration(glv3 v3)
-		{
-			this->acceleration = v3;
-		}
-		glv3 GetAcceleration()
-		{
-			return this->acceleration;
-		}
-		void SetVelocity(glv3 v3)
-		{
-			this->velocity = velocity;
-		}
-		glv3 GetVelocity()
-		{
-			return this->velocity;
-		}
-		void SetLife(float f)
-		{
-			this->life = f;
-		}
-		float GetLife()
-		{
-			return this->life;
-		}
-		void SetDecay(float d)
-		{
-			this->decay = decay;
-		}
-		float GetDecay()
-		{
-			return this->decay;
-		}
-		void Draw()
-		{
-
-		}
-	};
-
-	class Model
-	{
-	public:
-		Model(const char* path = "IRP", bool flip_uvs = true)
-		{
-			LoadModel(path, flip_uvs);
-		}
-		void Draw(ModMat mod, std::vector<Light> &light_sources);
-		bool Valid();
-		void Enable();
-		void Disable();
-		bool IsEnabled();
-	private:
-		std::vector<Texture> textures_loaded;
-		std::vector<Mesh> meshes;
-		std::string dir;
-		void LoadModel(std::string path, bool flip_uvs);
-		void ProcessNode(aiNode* node, const aiScene* scene);
-		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string type_string);
-		bool enabled = true;
-	};
-
-	class Window
-	{
-	public:
-		int width = 0;
-		int height = 0;
-		glv2 half_point = glv2(0.f);
-		float aspect_ratio = 1.f;
-		void UpdateHalfPoint()
-		{
-			this->half_point[0] = (int)((float)width / 2.f);
-			this->half_point[1] = (int)((float)height / 2.f);
-		}
-		void UpdateAspectRatio()
-		{
-			if (width && height)
-				this->aspect_ratio = (float)width / (float)height;
-			else
-				this->aspect_ratio = 16.f / 9.f;
-		}
-	};
 
 	float field_of_view = 90.f;
 
@@ -464,19 +101,7 @@ namespace gloom
 
 	ProjMat perspective_matrix, orthographic_matrix;
 
-	glm4 identity_matrix(1.f);
-
-	UniformLocation vector_camera_location;
-
-	UniformLocation matrix_ortographic_location, matrix_model_location, matrix_projection_location, matrix_view_location;
-
-	UniformLocation int_n_lights_location;
-
-	UniformLocation struct_light_location[k_max_n_lights], struct_light_attenuation[k_max_n_lights], struct_light_color[k_max_n_lights], struct_light_theta[k_max_n_lights], struct_light_direction[k_max_n_lights];
-	
-	UniformLocation sampler_diffuse_location[k_max_n_diffuse], sampler_specular_location[k_max_n_specular];
-
-	UniformLocation float_ambient_strength, float_specular_strength;
+	glm::mat4 identity_matrix(1.f);
 
 	float time0 = 0, time1 = 0, time2 = 0;
 
@@ -498,7 +123,7 @@ namespace gloom
 
 	bool vertical_sync = true;
 
-	gl_id default_shader;
+	unsigned int default_shader;
 
 	TextEditor editor;
 	std::ifstream editor_stream;
@@ -529,9 +154,9 @@ namespace gloom
 
 	void FlipDisplay();
 
-	void StateChangeShader(gl_id shader_id);
+	void StateChangeShader(unsigned int shader_id);
 
-	void SetDefaultShader(gl_id shader_id);
+	void SetDefaultShader(unsigned int shader_id);
 
 	void ResetShaderDefault();
 
@@ -556,16 +181,6 @@ namespace gloom
 	void Poll();
 
 	void ForceExit();
-
-	void WriteToShader(UniformLocation shader_location, glv3 *vector);
-
-	void WriteToShader(UniformLocation shader_location, int integer);
-
-	void WriteToShader(UniformLocation shader_location, float floating_point);
-
-	void WriteToShader(UniformLocation shader_location, glm4 *matrix);
-
-	void WriteToShader(std::vector<Light> &light_sources);
 
 	void CameraBegin();
 
@@ -596,12 +211,12 @@ void gloom::CameraBegin()
 	{
 		pitch = -89.9f;
 	}
-	glv3 direction;
+	glm::vec3 direction;
 	direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
 	direction.y = std::sin(glm::radians(pitch));
 	direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
 	direction = glm::normalize(direction);
-	glv3 right = glv3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
+	glm::vec3 right = glm::vec3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
 	if (GetKey(GLFW_KEY_W))
 	{
 		current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * direction * time2);
@@ -620,7 +235,7 @@ void gloom::CameraBegin()
 	}
 	if (GetKey(GLFW_KEY_SPACE))
 	{
-		current_camera->SetPos(current_camera->GetPos() + glv3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
+		current_camera->SetPos(current_camera->GetPos() + glm::vec3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
 	}
 	current_camera->SetTrg(current_camera->GetPos() + direction);
 }
@@ -628,40 +243,6 @@ void gloom::CameraBegin()
 void gloom::CameraEnd()
 {
 	SetMousePos(window.half_point.x, window.half_point.y);
-}
-
-void gloom::WriteToShader(std::vector<Light> &light_sources)
-{
-	int index = 0;
-	for (auto &i : light_sources)
-	{
-		WriteToShader(struct_light_attenuation[index], &i.attenuation);
-		WriteToShader(struct_light_location[index], &i.position);
-		WriteToShader(struct_light_color[index], &i.color);
-		WriteToShader(struct_light_theta[index], i.theta);
-		WriteToShader(struct_light_direction[index], &i.direction);
-		index++;
-	}
-}
-
-void gloom::WriteToShader(UniformLocation shader_location, glv3 *vector)
-{
-	glUniform3fv(shader_location.val, 1, &((*vector)[0]));
-}
-
-void gloom::WriteToShader(UniformLocation shader_location, int integer)
-{
-	glUniform1i(shader_location.val, integer);
-}
-
-void gloom::WriteToShader(UniformLocation shader_location, float floating_point)
-{
-	glUniform1f(shader_location.val, floating_point);
-}
-
-void gloom::WriteToShader(UniformLocation shader_location, glm4 *matrix)
-{
-	glUniformMatrix4fv(shader_location.val, 1, GL_FALSE, &((*matrix)[0][0]));
 }
 
 void gloom::Poll()
@@ -674,12 +255,12 @@ double gloom::GetTime()
 	return glfwGetTime();
 }
 
-void gloom::StateChangeShader(gl_id shader_id)
+void gloom::StateChangeShader(unsigned int shader_id)
 {
 	glUseProgram(shader_id);
 }
 
-void gloom::SetDefaultShader(gl_id shader_id)
+void gloom::SetDefaultShader(unsigned int shader_id)
 {
 	default_shader = shader_id;
 }
@@ -990,52 +571,6 @@ void gloom::SetCurrentCamera(gloom::Camera* camera_set)
 	current_camera = camera_set;
 }
 
-void gloom::Sprite2D::Draw(glv2 xy)
-{
-	glm4 model(1.f);
-	model = glm::translate(model, glv3(xy[0], xy[1], 0.f));
-	if (this->angle != 0)
-	{
-		model = glm::translate(model, glv3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
-		model = glm::rotate(model, glm::radians(this->angle), glv3(0.f, 0.f, 1.f));
-		model = glm::translate(model, glv3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
-	}
-	model = glm::scale(model, glv3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
-	WriteToShader(matrix_projection_location, orthographic_matrix.GetPointer());
-	WriteToShader(matrix_model_location, &identity_matrix);
-	WriteToShader(matrix_view_location, &identity_matrix);
-	WriteToShader(int_n_lights_location, -1);
-	glBindVertexArray(this->id);
-	glDrawElements(GL_TRIANGLES, 4, GL_FLOAT, 0);
-}
-
-void gloom::Sprite2D::Draw()
-{
-	glBindVertexArray(this->id);
-	glBindTexture(GL_TEXTURE_2D, this->tid);
-	glm4 model(1.f);
-	model = glm::translate(model, glv3(this->position, 0.f));
-	if (this->angle != 0.f)
-	{
-		model = glm::translate(model, glv3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
-		model = glm::rotate(model, glm::radians(this->angle), glv3(0.f, 0.f, 1.f));
-		model = glm::translate(model, glv3(-1.f * (this->point_of_rotation[0]), -1.f * (this->point_of_rotation[1]), 0.f));
-	}
-	model = glm::scale(model, glv3(this->width, this->height, 0.f));
-	glm::mat4 temp = glm::ortho(0.0f, (float)window.width, (float)window.height, 0.0f, -1.0f, 1.0f);
-	glv4 t = temp * model * glv4(1.f, 1.f, 0.f, 1.f);
-	if ((int)GetTime() % 50 == 0)
-	{
-		debug::LogVector(&t);
-	}
-	
-	WriteToShader(matrix_projection_location, &temp);
-	WriteToShader(matrix_model_location, &model);
-	WriteToShader(matrix_view_location, &identity_matrix);
-	WriteToShader(int_n_lights_location, -1);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
 void gloom::Mesh::Draw(ModMat mod, std::vector<Light> &light_sources)
 {
 	int diffuse_index = 1;
@@ -1211,86 +746,6 @@ void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int heigh
 	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 }
 
-void gloom::ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr)
-{
-	std::string* ptvss = vertex_shader_src_ptr;
-	std::string* ptfss = fragment_shader_src_ptr;
-	std::string line;
-	std::ifstream stream;
-	std::stringstream string_stream[2];
-	int vOF = 0;
-	stream.open(path);
-	while (getline(stream, line))
-	{
-		if (line.find("#region") != std::string::npos)
-		{
-			if (line.find("vertex") != std::string::npos)
-			{
-				vOF = 0;
-			}
-			else if (line.find("fragment") != std::string::npos)
-			{
-				vOF = 1;
-			}
-		}
-		else
-		{
-			string_stream[vOF] << line << '\n';
-		}
-	}
-	*ptvss = string_stream[0].str();
-	*ptfss = string_stream[1].str();
-}
-
-unsigned int gloom::ShaderInit(const char* path) {
-	unsigned int vSID = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fSID = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string vSSrc;
-	std::string fSSrc;
-	ParseShader(path, &vSSrc, &fSSrc);
-	GLint success = GL_FALSE;
-	int InfoLogLength;
-	char const* VertexSourcePointer = vSSrc.c_str();
-	glShaderSource(vSID, 1, &VertexSourcePointer, NULL);
-	glCompileShader(vSID);
-	glGetShaderiv(vSID, GL_COMPILE_STATUS, &success);
-	glGetShaderiv(vSID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if (InfoLogLength > 0) {
-		std::vector<char> VertexShaderErrorMessage((size_t)InfoLogLength + (size_t)1);
-		glGetShaderInfoLog(vSID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-		std::cout << &VertexShaderErrorMessage[0];
-	}
-	char const* FragmentSourcePointer = fSSrc.c_str();
-	glShaderSource(fSID, 1, &FragmentSourcePointer, NULL);
-	glCompileShader(fSID);
-	glGetShaderiv(fSID, GL_COMPILE_STATUS, &success);
-	glGetShaderiv(fSID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if (InfoLogLength > 0) {
-		std::vector<char> FragmentShaderErrorMessage((size_t)InfoLogLength + (size_t)1);
-		glGetShaderInfoLog(fSID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-		std::cout << &FragmentShaderErrorMessage[0];
-	}
-	unsigned int ProgramID = glCreateProgram();
-	glAttachShader(ProgramID, vSID);
-	glAttachShader(ProgramID, fSID);
-	glLinkProgram(ProgramID);
-	glGetProgramiv(ProgramID, GL_LINK_STATUS, &success);
-	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if (InfoLogLength > 0) {
-		std::vector<char> ProgramErrorMessage((size_t)InfoLogLength + (size_t)1);
-		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-		std::cout << &ProgramErrorMessage[0];
-	}
-
-	glDetachShader(ProgramID, vSID);
-	glDetachShader(ProgramID, fSID);
-
-	glDeleteShader(vSID);
-	glDeleteShader(fSID);
-
-	return ProgramID;
-}
-
 GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_name, bool fullscreen)
 {
 	stbi_set_flip_vertically_on_load(1);
@@ -1439,5 +894,3 @@ gloom::Camera * gloom::GetCurrentCamera()
 {
 	return current_camera;
 }
-
-#endif

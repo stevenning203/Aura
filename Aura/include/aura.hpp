@@ -1,50 +1,5 @@
+#pragma once
 #include "gloom.hpp"
-
-namespace ap
-{
-	std::unordered_map<int, gloom::Model> model_hash;
-	void Throw(const char* text)
-	{
-		throw std::invalid_argument(text);
-	}
-	bool OverwriteString(std::string path, std::string& cont)
-	{
-		std::ifstream c(path);
-		std::ofstream o("temp.cpp");
-		if (std::remove(path.c_str()) != 0)
-		{
-			return false;
-		}
-		o << cont;
-		if (std::rename("temp.cpp", path.c_str()) != 0)
-		{
-			return false;
-		}
-		return true;
-	}
-	void ModelParse(std::string line)
-	{
-		if (line.substr(0, 12) == ">>NewModel()")
-		{
-			int len = stoi(line.substr(13, 2));
-			int id = stoi(line.substr(16, 4));
-			std::string path = line.substr(21, len);
-			model_hash[id] = gloom::Model(path.c_str());
-		}
-		else if (line.substr(0, 10) == "#endregion")
-		{
-			return;
-		}
-		else
-		{
-			Throw("Parsing error: >>NewModel() or #endregion text missing for Objects region");
-		}
-	}
-	void Compile()
-	{
-
-	}
-}
 
 namespace aura
 {
@@ -90,17 +45,22 @@ namespace aura
 		gloom::ModMat rotation;
 		gloom::ModMat scaling;
 		gloom::ModMat modmat;
-		glv3 position = glv3(0.f);
-		glv3 scale = glv3(1.f);
-		glv3 rot = glv3(0.f);
+		glm::vec3 position = glm::vec3(0.f);
+		glm::vec3 scale = glm::vec3(1.f);
+		glm::vec3 rot = glm::vec3(0.f);
 		std::string name = std::string("Unnamed Object ") + std::to_string(object_name_increment);
 		gloom::Model model;
-		Object(gloom::Model model_load)
+		Object(gloom::Model &model_load)
 		{
 			object_name_increment++;
 			this->model = model_load;
 		}
-		void Draw(gloom::ModMat matrix, std::vector<gloom::Light> &lights)
+		Object()
+		{
+			object_name_increment++;
+			this->model = gloom::Model();
+		}
+		void Draw(gloom::ModMat &matrix, std::vector<gloom::Light> &lights)
 		{
 			this->model.Draw(matrix, lights);
 		}
@@ -166,6 +126,14 @@ namespace aura
 	};
 }
 
+typedef std::vector<aura::Object> ObjectArray;
+typedef std::vector<gloom::Light> LightArray;
+typedef std::vector<gloom::Camera> CameraArray;
+typedef aura::Object Object;
+typedef gloom::Light Light;
+typedef gloom::Camera Camera;
+typedef aura::Object* ObjectPtr;
+
 void aura::SnapShot::Set(Scene snapshot)
 {
 	this->snapshot = snapshot;
@@ -174,4 +142,69 @@ void aura::SnapShot::Set(Scene snapshot)
 void aura::SnapShot::Restore()
 {
 	*(this->scene_pointer) = snapshot;
+}
+
+namespace ap
+{
+	std::unordered_map<int, gloom::Model> model_hash;
+	std::unordered_map<std::string, aura::Object> object_hash;
+	void Throw(const char* text)
+	{
+		throw std::invalid_argument(text);
+	}
+	bool OverwriteString(std::string path, std::string& cont)
+	{
+		std::ifstream c(path);
+		std::ofstream o("temp.cpp");
+		if (std::remove(path.c_str()) != 0)
+		{
+			return false;
+		}
+		o << cont;
+		if (std::rename("temp.cpp", path.c_str()) != 0)
+		{
+			return false;
+		}
+		return true;
+	}
+	void ObjectParse(std::string line)
+	{
+		if (line.substr(0, 13) == ">>NewObject()")
+		{
+			int len = stoi(line.substr(14, 3));
+			int model_id = stoi(line.substr(18, 4));
+			std::string id = line.substr(23, len);
+			object_hash[id] = aura::Object(model_hash[model_id]);
+		}
+		else if (line.substr(0, 10) == "#endregion")
+		{
+			return;
+		}
+		else
+		{
+			Throw("Parsing error: >>NewObject() or #endregion text missing for objects region");
+		}
+	}
+	void ModelParse(std::string line)
+	{
+		if (line.substr(0, 12) == ">>NewModel()")
+		{
+			int len = stoi(line.substr(13, 3));
+			int id = stoi(line.substr(17, 4));
+			std::string path = line.substr(22, len);
+			model_hash[id] = gloom::Model(path.c_str());
+		}
+		else if (line.substr(0, 10) == "#endregion")
+		{
+			return;
+		}
+		else
+		{
+			Throw("Parsing error: >>NewModel() or #endregion text missing for models region");
+		}
+	}
+	void Compile()
+	{
+
+	}
 }

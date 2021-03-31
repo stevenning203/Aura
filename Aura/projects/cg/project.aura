@@ -3,17 +3,17 @@
 #scene : Hello
 
 #region : models
->>NewModel() 19 0000 models/backpack.obj
+>>NewModel() 019 0000 models/backpack.obj
 #endregion
 
 #region : objects
->>NewObject() 0000 
+>>NewObject() 008 0000 Backpack
 #endregion
 
-[region:camera]
+#region : cameras
 
-[region:lights]
+#region : lights
 
-[region:scripts]
+#region : scripts
 
 #endscene

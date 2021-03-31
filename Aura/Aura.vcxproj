@@ -157,6 +157,8 @@
     <ClInclude Include="include\aura.hpp" />
     <ClInclude Include="include\definitions.hpp" />
     <ClInclude Include="include\gloom.hpp" />
+    <ClInclude Include="include\gloomcogs\light.hpp" />
+    <ClInclude Include="include\gloomcogs\shader.hpp" />
     <ClInclude Include="include\hash_table.hpp" />
     <ClInclude Include="include\scriptspace.hpp" />
     <ClInclude Include="scripts\scripts.hpp" />

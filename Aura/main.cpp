@@ -1,4 +1,4 @@
-#include "scriptspace.hpp"
+#include "aura.hpp"
 
 namespace state
 {
@@ -42,6 +42,7 @@ namespace buffers
 	char scene_name[k_char_input_max];
 	char object_name[k_char_input_max];
 	char script_location[k_char_input_max];
+	char current_project_prefix[k_char_input_max];
 
 	float shader_ambient_strength = 0.1f;
 	float shader_specular_strength = 0.5f;
@@ -88,9 +89,7 @@ namespace console
 int main()
 {
 	gloom::Init(1920, 1080, "Aura");
-
 	gloom::Sprite2D stewie("models/2d/ryanbarian.png", true);
-
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::vector<aura::Scene> scenes;
@@ -399,10 +398,7 @@ int main()
 						glfwSwapInterval(gloom::vertical_sync);
 					}
 					ImGui::Text("!!!: V-Sync off is unstable");
-					if (ImGui::SliderInt("Target FPS", &gloom::target_fps, 24, 240))
-					{
-
-					}
+					ImGui::SliderInt("Target FPS", &gloom::target_fps, 24, 240);
 					ImGui::EndTabItem();
 				}
 				if (ImGui::BeginTabItem("Shader"))
@@ -458,7 +454,7 @@ int main()
 				ImGui::SameLine();
 				if (ImGui::Button("New"))
 				{
-
+					state::new_script_menu_open = true;
 				}
 				if (ImGui::Button("Close"))
 				{
@@ -476,7 +472,16 @@ int main()
 					std::string temp_begin = std::string(buffers::project_location);
 					gloom::NewPath(temp_begin);
 					gloom::NewFile(temp_begin + std::string("/main.cpp"));
+					std::ofstream f(temp_begin + std::string("/main.cpp"));
+					f << "#include \"aura.hpp\"" << std::endl;
+					f << "int main()" << std::endl;
+					f << "{" << std::endl;
+					f << "	return 0;" << std::endl;
+					f << "}" << std::endl;
 					gloom::NewFile(temp_begin + std::string("/mainscript.cpp"));
+					f.open(temp_begin + std::string("/mainscript.cpp"));
+					f << "#include \"0.cpp\"" << (char)10;
+					f.close();
 					gloom::NewFile(temp_begin + std::string("/project.aura"));
 					gloom::NewPath(temp_begin + std::string("/models"));
 					state::new_file_menu_open = false;
@@ -516,6 +521,7 @@ int main()
 							{
 								if (!(line.substr(0, 18) == "#filetype auraproj"))
 								{
+									ap::Throw("Filetype is corrupted or not an auraproj file");
 									break;
 								}
 							}
@@ -546,6 +552,7 @@ int main()
 						}
 						else if (mode == aura::AuraParse::k_object)
 						{
+							ap::ObjectParse(line);
 							if (line.substr(0, 10) == "#endregion")
 							{
 								mode = aura::AuraParse::k_null;
@@ -654,13 +661,13 @@ int main()
 						if (ImGui::InputFloat("X Position", &aura::active_scene->objects[i].position[0], 1, 1) || ImGui::InputFloat("Y Position", &aura::active_scene->objects[i].position[1], 1, 1) || ImGui::InputFloat("Z Position", &aura::active_scene->objects[i].position[2], 1, 1))
 						{
 							aura::active_scene->objects[i].translation.Reset();
-							aura::active_scene->objects[i].translation.XYZ(glv3(aura::active_scene->objects[i].position));
+							aura::active_scene->objects[i].translation.XYZ(glm::vec3(aura::active_scene->objects[i].position));
 							aura::active_scene->objects[i].MergeMat();
 						}
 						if (ImGui::InputFloat("X Scale", &aura::active_scene->objects[i].scale.x, 1, 1) || ImGui::InputFloat("Y Scale", &aura::active_scene->objects[i].scale.y, 1, 1) || ImGui::InputFloat("Z Scale", &aura::active_scene->objects[i].scale.z, 1, 1))
 						{
 							aura::active_scene->objects[i].scaling.Reset();
-							aura::active_scene->objects[i].scaling.Scale(glv3(aura::active_scene->objects[i].scale));
+							aura::active_scene->objects[i].scaling.Scale(glm::vec3(aura::active_scene->objects[i].scale));
 							aura::active_scene->objects[i].MergeMat();
 						}
 						if (ImGui::InputFloat("X rotation", &aura::active_scene->objects[i].rot[0], 1, 1))

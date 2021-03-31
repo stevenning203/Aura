@@ -64,6 +64,7 @@ vec3 CalculateLighting(Light light_source, vec3 fragment_position)
 	float diffuse_constant = max(dot(normal, light_direction), ambient_strength);
 	vec3 diffuse = diffuse_constant * light_source.color;
 	vec3 result = diffuse + specular;
+	float strength = light_source.attenuation[0];
 	return result;
 }
 
