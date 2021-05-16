@@ -16,6 +16,9 @@
     <Filter Include="Resource Files\cogs">
       <UniqueIdentifier>{aa287d18-8a6d-46bc-acb7-747f98349872}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Cogs">
+      <UniqueIdentifier>{cf6bd7f3-fba5-46d1-9a8a-44f1f2f342da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,11 +62,38 @@
     <ClInclude Include="include\hash_table.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\gloomcogs\2d.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\camera.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\model.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\const.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\matrix.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\window.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\input.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\debug.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gloomcogs\sys.hpp">
+      <Filter>Header Files\Cogs</Filter>
+    </ClInclude>
     <ClInclude Include="include\gloomcogs\shader.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Cogs</Filter>
     </ClInclude>
     <ClInclude Include="include\gloomcogs\light.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Cogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

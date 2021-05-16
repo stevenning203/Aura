@@ -10,80 +10,31 @@
 #include "assimp/postprocess.h"
 #include "stb_image.h"
 
+#include "gloomcogs/sys.hpp"
+#include "gloomcogs/debug.hpp"
 #include "gloomcogs/shader.hpp"
 #include "gloomcogs/const.hpp"
+#include "gloomcogs/input.hpp"
 #include "gloomcogs/camera.hpp"
-#include "gloomcogs/classes.hpp"
+#include "gloomcogs/model.hpp"
 #include "gloomcogs/window.hpp"
 #include "gloomcogs/2d.hpp"
 
 #include "TextEditor.h"
 #include <string>
-#include <fstream>
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
 #include <cstdio>
-#include <Windows.h>
 #include <shellapi.h>
 #include <cmath>
 #include <thread>
-#include <direct.h>
-
-namespace debug
-{
-	void LogMatrix(glm::mat4* matrix)
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++)
-			{
-				std::cout << (*matrix)[j][i] << " | ";
-			}
-			std::cout << std::endl;
-		}
-	}
-
-	template <typename v>
-	void LogVector(v* vector)
-	{
-		for (int i = 0; i < vector->length(); i++)
-		{
-			std::cout << (*vector)[i] << " | ";
-		}
-		std::cout << std::endl;
-	}
-}
 
 namespace gloom
 {
-	void NewFile(const char* path)
-	{
-		std::ofstream t(path);
-		t.close();
-	}
-
-	void NewFile(std::string path)
-	{
-		std::ofstream t(path);
-		t.close();
-	}
-
-	void NewPath(const char* path)
-	{
-		int nil = _mkdir(path);
-	}
-
-	void NewPath(std::string path)
-	{
-		int nil = _mkdir(path.c_str());
-	}
-
 	unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false);
-
-	float field_of_view = 90.f;
 
 	bool force_exit = false;
 
@@ -91,35 +42,10 @@ namespace gloom
 
 	unsigned int shader;
 
-	Camera* current_camera;
-
-	Window window;
-
-	int mouse_x, mouse_y;
-
-	GLFWwindow* local_window;
-
-	ProjMat perspective_matrix, orthographic_matrix;
-
 	glm::mat4 identity_matrix(1.f);
-
-	float time0 = 0, time1 = 0, time2 = 0;
 
 	std::chrono::high_resolution_clock::time_point time_point0;
 	std::chrono::high_resolution_clock::time_point time_point1;
-
-	float camera_sensitivity = 0.2f;
-	float camera_speed = 5.f;
-	float camera_speed_multiplier = 1.f;
-
-	float pitch = 0.f;
-	float yaw = -90.f;
-
-	bool mouse_button_left_down, mouse_button_right_down, mouse_button_middle_down;
-
-	bool mouse_button_left_up, mouse_button_right_up, mouse_button_middle_up;
-
-	bool mouse_button_left_held, mouse_button_right_held, mouse_button_middle_held;
 
 	bool vertical_sync = true;
 
@@ -130,17 +56,9 @@ namespace gloom
 	
 	void SetCurrentCamera(Camera* camera_set);
 
-	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mode);
-
 	void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 
 	glm::vec2 GetMousePos();
-
-	auto Split(std::string str, char split, bool fc = true);
-
-	auto SplitString(std::string str, char split);
-
-	void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
 	void ParseShader(std::string path, std::string* vertex_shader_src_ptr, std::string* fragment_shader_src_ptr);
 
@@ -149,8 +67,6 @@ namespace gloom
 	GLFWwindow* Init(int window_width, int window_height, const char* window_name, bool fullscreen = NULL);
 
 	void SetFieldOfView(float deg);
-
-	void Poll();
 
 	void FlipDisplay();
 
@@ -162,23 +78,11 @@ namespace gloom
 
 	bool QueueExit();
 
-	bool GetKey(unsigned int glKeycode);
-
 	void SetClearColor(float x, float y, float z, float a = 1.0f);
-
-	void SetMouseMode(Gloonum mouse_mode);
-
-	void SetMousePos(int x, int y);
 
 	void Terminate();
 
-	void ForceLowInput();
-
 	void ClearBuffer();
-
-	double GetTime();
-
-	void Poll();
 
 	void ForceExit();
 
@@ -187,72 +91,6 @@ namespace gloom
 	void CameraEnd();
 
 	Camera * GetCurrentCamera();
-}
-
-void gloom::CameraBegin()
-{
-	GetKey(GLFW_KEY_LEFT_SHIFT) ? camera_speed_multiplier = 2.5f : camera_speed_multiplier = 1.f;
-	float delta_x = window.half_point.x - mouse_x;
-	float delta_y = window.half_point.y - mouse_y;
-	if (mouse_button_right_down)
-	{
-		delta_x = 0;
-		delta_y = 0;
-	}
-	delta_x *= camera_sensitivity;
-	delta_y *= camera_sensitivity;
-	yaw += delta_x;
-	pitch += delta_y;
-	if (pitch > 89.9f)
-	{
-		pitch = 89.9f;
-	}
-	if (pitch < -89.9f)
-	{
-		pitch = -89.9f;
-	}
-	glm::vec3 direction;
-	direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
-	direction.y = std::sin(glm::radians(pitch));
-	direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
-	direction = glm::normalize(direction);
-	glm::vec3 right = glm::vec3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
-	if (GetKey(GLFW_KEY_W))
-	{
-		current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * direction * time2);
-	}
-	if (GetKey(GLFW_KEY_S))
-	{
-		current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * direction * time2);
-	}
-	if (GetKey(GLFW_KEY_A))
-	{
-		current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * right * time2);
-	}
-	if (GetKey(GLFW_KEY_D))
-	{
-		current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * right * time2);
-	}
-	if (GetKey(GLFW_KEY_SPACE))
-	{
-		current_camera->SetPos(current_camera->GetPos() + glm::vec3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
-	}
-	current_camera->SetTrg(current_camera->GetPos() + direction);
-}
-
-void gloom::CameraEnd()
-{
-	SetMousePos(window.half_point.x, window.half_point.y);
-}
-
-void gloom::Poll()
-{
-	glfwPollEvents();
-}
-
-double gloom::GetTime()
-{
-	return glfwGetTime();
 }
 
 void gloom::StateChangeShader(unsigned int shader_id)
@@ -282,31 +120,9 @@ void gloom::ClearBuffer()
 	time2 = time1 - time0;
 }
 
-void gloom::ForceLowInput()
-{
-	glFinish();
-}
-
 void gloom::Terminate()
 {
 	glfwTerminate();
-}
-
-void gloom::SetMousePos(int x, int y)
-{
-	glfwSetCursorPos(local_window, x, y);
-}
-
-void gloom::SetMouseMode(Gloonum mouse_mode)
-{
-	if (mouse_mode == gloom::Gloonum::k_gloom_mouse_mode_hide)
-	{
-		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	}
-	else if (mouse_mode == gloom::Gloonum::k_gloom_mouse_mode_show)
-	{
-		glfwSetInputMode(local_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
 }
 
 void gloom::SetClearColor(float x, float y, float z, float a)
@@ -314,14 +130,9 @@ void gloom::SetClearColor(float x, float y, float z, float a)
 	glClearColor(x, y, z, a);
 }
 
-bool gloom::GetKey(unsigned int glKeycode)
-{
-	return glfwGetKey(local_window, glKeycode);
-}
-
 bool gloom::QueueExit()
 {
-	return glfwWindowShouldClose(local_window) || gloom::force_exit;
+	return glfwWindowShouldClose(window.local_window) || gloom::force_exit;
 }
 
 void gloom::FlipDisplay()
@@ -333,7 +144,7 @@ void gloom::FlipDisplay()
 	mouse_button_right_up = 0;
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	glfwSwapBuffers(local_window);
+	glfwSwapBuffers(window.local_window);
 	time_point1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> delta = std::chrono::duration_cast<std::chrono::duration<double>>(time_point1 - time_point0);
 	if (!vertical_sync)
@@ -347,11 +158,6 @@ void gloom::FlipDisplay()
 		}
 		Sleep((DWORD)sleep_time);
 	}
-}
-
-glm::vec2 gloom::GetMousePos()
-{
-	return glm::vec2(mouse_x, mouse_y);
 }
 
 void gloom::Model::Enable()
@@ -653,97 +459,9 @@ unsigned int gloom::TextureFromFile(const char* path, const std::string& directo
 	return textureID;
 }
 
-auto gloom::Split(std::string str, char split, bool fc)
-{
-	std::vector<float> tv;
-	int current = 1;
-	std::string word = "";
-	for (auto x : str)
-	{
-		if (x == split)
-		{
-			if (fc)
-				tv.push_back(stof(word));
-			word = "";
-		}
-		else
-		{
-			word = word + x;
-		}
-	}
-	if (fc)
-		tv.push_back(stof(word));
-	return tv;
-}
-
-auto gloom::SplitString(std::string str, char split)
-{
-	std::vector<std::string> tv;
-	int current = 1;
-	std::string word = "";
-	for (auto x : str)
-	{
-		if (x == split)
-		{
-			tv.push_back(word);
-			word = "";
-		}
-		else
-		{
-			word = word + x;
-		}
-	}
-	tv.push_back(word);
-	return tv;
-}
-
-void gloom::CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
-{
-	mouse_x = (int)xpos;
-	mouse_y = (int)ypos;
-}
-
 void gloom::ForceExit()
 {
 	force_exit = true;
-}
-
-void gloom::MouseButtonCallback(GLFWwindow * window, int button, int action, int mode)
-{
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		mouse_button_left_down = 1;
-		mouse_button_left_held = 1;
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-	{
-		mouse_button_right_down = 1;
-		mouse_button_right_held = 1;
-	}
-	if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS)
-	{
-		mouse_button_middle_down = 1;
-	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-	{
-		mouse_button_left_up = 1;
-		mouse_button_left_held = 0;
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
-	{
-		mouse_button_right_up = 1;
-		mouse_button_right_held = 0;
-	}
-}
-
-void gloom::FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int height)
-{
-	window.width = width;
-	window.height = height;
-	window.UpdateHalfPoint();
-	window.UpdateAspectRatio();
-	glViewport(0, 0, width, height);
-	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 }
 
 GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_name, bool fullscreen)
@@ -756,19 +474,24 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	window.height = window_height;
 	window.UpdateHalfPoint();
 	window.UpdateAspectRatio();
-	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	GLFWwindow* temp;
+	if (!glfwInit())
+	{
+		glfwTerminate();
+	}
 	if (fullscreen == true)
-		local_window = glfwCreateWindow(width, height, window_name, glfwGetPrimaryMonitor(), NULL);
+		temp = glfwCreateWindow(width, height, window_name, glfwGetPrimaryMonitor(), NULL);
 	else
-		local_window = glfwCreateWindow(width, height, window_name, NULL, NULL);
+		temp = glfwCreateWindow(width, height, window_name, NULL, NULL);
+	gloom::window.local_window = temp;
 	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.0f));
 	orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f));
-	glfwMakeContextCurrent(local_window);
-	if (!local_window)
+	glfwMakeContextCurrent(window.local_window);
+	if (!window.local_window)
 	{
 		std::cout << "Failed to init GLFW window" << std::endl;
 		glfwTerminate();
@@ -835,11 +558,11 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	style.Colors[ImGuiCol_Tab] = ImVec4(0.f, 0.f, 0.f, 1.00f);
 	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 	style.Colors[ImGuiCol_TabActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-	ImGui_ImplGlfw_InitForOpenGL(local_window, true);
+	ImGui_ImplGlfw_InitForOpenGL(window.local_window, true);
 	ImGui_ImplOpenGL3_Init("#version 430 core");
 	glViewport(0, 0, width, height);
-	glfwSetFramebufferSizeCallback(local_window, FrameBufferSizeCallback);
-	glfwSetMouseButtonCallback(local_window, MouseButtonCallback);
+	glfwSetFramebufferSizeCallback(window.local_window, FrameBufferSizeCallback);
+	glfwSetMouseButtonCallback(window.local_window, MouseButtonCallback);
 	shader = ShaderInit("res/shaders/basic.shader");
 	glUseProgram(shader);
 	matrix_model_location.val = glGetUniformLocation(shader, "matrix_model");
@@ -878,10 +601,10 @@ GLFWwindow* gloom::Init(int window_width, int window_height, const char* window_
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glfwSetCursorPosCallback(local_window, CursorPosCallback);
+	glfwSetCursorPosCallback(window.local_window, CursorPosCallback);
 	auto language = TextEditor::LanguageDefinition::CPlusPlus();
 	editor.SetLanguageDefinition(language);
-	return local_window;
+	return window.local_window;
 }
 
 void gloom::SetFieldOfView(float deg)
@@ -890,7 +613,7 @@ void gloom::SetFieldOfView(float deg)
 	perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 }
 
-gloom::Camera * gloom::GetCurrentCamera()
+gloom::Camera* gloom::GetCurrentCamera()
 {
 	return current_camera;
 }

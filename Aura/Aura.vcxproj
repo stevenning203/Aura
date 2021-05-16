@@ -157,8 +157,17 @@
     <ClInclude Include="include\aura.hpp" />
     <ClInclude Include="include\definitions.hpp" />
     <ClInclude Include="include\gloom.hpp" />
+    <ClInclude Include="include\gloomcogs\2d.hpp" />
+    <ClInclude Include="include\gloomcogs\camera.hpp" />
+    <ClInclude Include="include\gloomcogs\model.hpp" />
+    <ClInclude Include="include\gloomcogs\const.hpp" />
+    <ClInclude Include="include\gloomcogs\debug.hpp" />
+    <ClInclude Include="include\gloomcogs\input.hpp" />
     <ClInclude Include="include\gloomcogs\light.hpp" />
+    <ClInclude Include="include\gloomcogs\matrix.hpp" />
     <ClInclude Include="include\gloomcogs\shader.hpp" />
+    <ClInclude Include="include\gloomcogs\sys.hpp" />
+    <ClInclude Include="include\gloomcogs\window.hpp" />
     <ClInclude Include="include\hash_table.hpp" />
     <ClInclude Include="include\scriptspace.hpp" />
     <ClInclude Include="scripts\scripts.hpp" />
