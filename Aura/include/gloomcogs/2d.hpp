@@ -12,7 +12,7 @@ namespace gloom
 	{
 		unsigned int id = 0;
 		unsigned int tid = 0;
-		float width = 0, height = 0;
+		int width = 0, height = 0;
 		float angle = 0;
 		glm::vec2 scale = glm::vec2(1.f);
 		glm::vec2 position = glm::vec2(0.f, 0.f);

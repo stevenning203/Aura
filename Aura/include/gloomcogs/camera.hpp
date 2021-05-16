@@ -113,7 +113,7 @@ namespace gloom
 
 	void CameraEnd()
 	{
-		SetMousePos(window.local_window, window.half_point.x, window.half_point.y);
+		SetMousePos(window.local_window, (int)window.half_point.x, (int)window.half_point.y);
 	}
 
 }

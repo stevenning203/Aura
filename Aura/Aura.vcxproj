@@ -167,6 +167,7 @@
     <ClInclude Include="include\gloomcogs\matrix.hpp" />
     <ClInclude Include="include\gloomcogs\shader.hpp" />
     <ClInclude Include="include\gloomcogs\sys.hpp" />
+    <ClInclude Include="include\gloomcogs\texture.hpp" />
     <ClInclude Include="include\gloomcogs\window.hpp" />
     <ClInclude Include="include\hash_table.hpp" />
     <ClInclude Include="include\scriptspace.hpp" />
