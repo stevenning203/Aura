@@ -58,8 +58,6 @@ namespace gloom
 	float pitch = 0.f;
 	float yaw = -90.f;
 
-	float time0 = 0, time1 = 0, time2 = 0;
-
 	void CameraBegin()
 	{
 		GetKey(window.local_window, GLFW_KEY_LEFT_SHIFT) ? camera_speed_multiplier = 2.5f : camera_speed_multiplier = 1.f;
@@ -116,4 +114,19 @@ namespace gloom
 		SetMousePos(window.local_window, (int)window.half_point.x, (int)window.half_point.y);
 	}
 
+	void SetFieldOfView(float deg)
+	{
+		field_of_view = deg;
+		perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
+	}
+
+	Camera* GetCurrentCamera()
+	{
+		return current_camera;
+	}
+
+	void SetCurrentCamera(gloom::Camera* camera_set)
+	{
+		current_camera = camera_set;
+	}
 }

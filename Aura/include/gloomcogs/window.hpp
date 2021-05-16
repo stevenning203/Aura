@@ -8,6 +8,8 @@
 #include "gloomcogs/shader.hpp"
 #include "TextEditor.h"
 #include "stb_image.h"
+#include "gloomcogs/camera.hpp"
+#include <chrono>
 
 namespace gloom
 {
@@ -42,6 +44,19 @@ namespace gloom
 	TextEditor editor;
 	std::ifstream editor_stream;
 
+	bool force_exit = false;
+
+	int target_fps = 60;
+
+	bool vertical_sync = true;
+
+	float time0 = 0, time1 = 0, time2 = 0;
+
+	std::chrono::high_resolution_clock::time_point time_point0;
+	std::chrono::high_resolution_clock::time_point time_point1;
+
+	unsigned int default_shader;
+
 	void FrameBufferSizeCallback(GLFWwindow* window_ptr, int width, int height)
 	{
 		window.width = width;
@@ -52,7 +67,79 @@ namespace gloom
 		perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
 	}
 
-	GLFWwindow* Init(int window_width, int window_height, const char* window_name, bool fullscreen)
+	void StateChangeShader(unsigned int shader_id)
+	{
+		glUseProgram(shader_id);
+	}
+
+	void SetDefaultShader(unsigned int shader_id)
+	{
+		default_shader = shader_id;
+	}
+
+	void ResetShaderDefault()
+	{
+		glUseProgram(default_shader);
+	}
+
+	void ClearBuffer()
+	{
+		time_point0 = std::chrono::high_resolution_clock::now();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		time0 = time1;
+		time1 = (float)GetTime();
+		time2 = time1 - time0;
+	}
+
+	void Terminate()
+	{
+		glfwTerminate();
+	}
+
+	void SetClearColor(float x, float y, float z, float a = 1.f)
+	{
+		glClearColor(x, y, z, a);
+	}
+
+	bool QueueExit()
+	{
+		return glfwWindowShouldClose(window.local_window) || gloom::force_exit;
+	}
+
+	void FlipDisplay()
+	{
+		mouse_button_left_down = 0;
+		mouse_button_right_down = 0;
+		mouse_button_middle_down = 0;
+		mouse_button_left_up = 0;
+		mouse_button_right_up = 0;
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glfwSwapBuffers(window.local_window);
+		time_point1 = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> delta = std::chrono::duration_cast<std::chrono::duration<double>>(time_point1 - time_point0);
+		if (!vertical_sync)
+		{
+			double fps_inv = (double)1000 / (double)target_fps;
+			double delta_count = (double)1000 * delta.count();
+			double sleep_time = (int)(fps_inv - delta_count);
+			if (sleep_time > k_max_fps_inv)
+			{
+				sleep_time = (int)k_max_fps_inv;
+			}
+			Sleep((DWORD)sleep_time);
+		}
+	}
+
+	void ForceExit()
+	{
+		force_exit = true;
+	}
+
+	GLFWwindow* Init(int window_width, int window_height, const char* window_name, bool fullscreen = false)
 	{
 		stbi_set_flip_vertically_on_load(1);
 		std::srand((unsigned)time(0));

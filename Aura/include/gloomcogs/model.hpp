@@ -45,7 +45,42 @@ namespace gloom
 
 			SetupMesh();
 		}
-		void Draw(ModMat mod, std::vector<Light>& light_sources);
+		void Draw(ModMat mod, std::vector<Light>& light_sources)
+		{
+			int diffuse_index = 1;
+			int specular_index = 1;
+			int normal_index = 1;
+			int height_index = 1;
+			for (int i = 0; i < textures.size(); i++)
+			{
+				glActiveTexture(GL_TEXTURE0 + i);
+
+				if (textures[i].enum_type == Gloonum::k_gloom_texture_diffuse)
+				{
+					WriteToShader(sampler_diffuse_location[diffuse_index++], i);
+				}
+				else if (textures[i].enum_type == Gloonum::k_gloom_texture_specular)
+				{
+					WriteToShader(sampler_diffuse_location[specular_index++], i);
+				}
+				else if (textures[i].enum_type == Gloonum::k_gloom_texture_normal)
+				{
+					WriteToShader(sampler_diffuse_location[normal_index++], i);
+				}
+
+				glBindTexture(GL_TEXTURE_2D, textures[i].id);
+			}
+			WriteToShader(matrix_projection_location, perspective_matrix.GetPointer());
+			WriteToShader(matrix_model_location, mod.GetPointer());
+			WriteToShader(matrix_view_location, current_camera->GetMatrixPointer());
+			WriteToShader(light_sources);
+			WriteToShader(int_n_lights_location, (int)light_sources.size());
+			WriteToShader(vector_camera_location, current_camera->GetPosPointer());
+			glBindVertexArray(VAO);
+			glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+			glActiveTexture(GL_TEXTURE0);
+		}
 	private:
 		unsigned int VAO, VBO, EBO;
 		void SetupMesh()
