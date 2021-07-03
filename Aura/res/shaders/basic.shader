@@ -19,8 +19,6 @@ void main()
 	texture_coordinate = texture_coordinate_in;
 	fragment_position = vec3(matrix_model * vec4(vertex_position, 1.f));
 	gl_Position = matrix_projection * matrix_view * matrix_model * vec4(vertex_position, 1.f);
-	//gl_Position = matrix_projection * matrix_model * vec4(vertex_position.xy, 0.f, 1.f);
-	//gl_Position = vec4(vertex_position.xy, 0.f, 1.f);
 }
 
 #region fragment

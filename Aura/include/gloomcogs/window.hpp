@@ -65,6 +65,7 @@ namespace gloom
 		window.UpdateAspectRatio();
 		glViewport(0, 0, width, height);
 		perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.f));
+		orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, -1.f, 1.f));
 	}
 
 	void StateChangeShader(unsigned int shader_id)
@@ -141,7 +142,7 @@ namespace gloom
 
 	GLFWwindow* Init(int window_width, int window_height, const char* window_name, bool fullscreen = false)
 	{
-		stbi_set_flip_vertically_on_load(1);
+		stbi_set_flip_vertically_on_load(0);
 		std::srand((unsigned)time(0));
 		int width = window_width;
 		int height = window_height;
@@ -164,7 +165,7 @@ namespace gloom
 			temp = glfwCreateWindow(width, height, window_name, NULL, NULL);
 		gloom::window.local_window = temp;
 		perspective_matrix.Set(glm::perspective(glm::radians(field_of_view), window.aspect_ratio, 0.1f, 100.0f));
-		orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, 0.f, 1.f));
+		orthographic_matrix.Set(glm::ortho(0.f, (float)window.width, (float)window.height, 0.f, -1.f, 1.f));
 		glfwMakeContextCurrent(window.local_window);
 		if (!window.local_window)
 		{

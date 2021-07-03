@@ -19,6 +19,9 @@
     <Filter Include="Header Files\Gloom Cogs">
       <UniqueIdentifier>{cf6bd7f3-fba5-46d1-9a8a-44f1f2f342da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Menu Cogs">
+      <UniqueIdentifier>{d0ef4e84-37f8-4620-b3aa-090e359956bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

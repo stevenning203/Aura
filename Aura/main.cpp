@@ -47,7 +47,7 @@ namespace buffers
 	float shader_ambient_strength = 0.1f;
 	float shader_specular_strength = 0.5f;
 
-	bool flip_uvs = true;
+	bool flip_uvs = false;
 
 	void Clear(char* buffer)
 	{
@@ -88,8 +88,7 @@ namespace console
 
 int main()
 {
-	gloom::Init(1920, 1080, "Aura");
-	gloom::Sprite2D stewie("models/2d/ryanbarian.png", true);
+	GLFWwindow* window = gloom::Init(1920, 1080, "Aura");
 	std::vector<gloom::Model> models;
 	std::vector<std::string> model_names;
 	std::vector<aura::Scene> scenes;
@@ -108,6 +107,7 @@ int main()
 
 	gloom::CameraBegin();
 	gloom::CameraEnd();
+
 	while (!gloom::QueueExit())
 	{
 		gloom::ClearBuffer();

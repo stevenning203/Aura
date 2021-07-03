@@ -5,6 +5,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "gloomcogs/window.hpp"
+#include <utility>
 
 namespace gloom
 {
@@ -15,9 +17,8 @@ namespace gloom
 		int width = 0, height = 0;
 		float angle = 0;
 		glm::vec2 scale = glm::vec2(1.f);
-		glm::vec2 position = glm::vec2(0.f, 0.f);
-		glm::vec2 point_of_rotation = glm::vec2(0, 0);
-		Sprite2D(const char* path, bool transparency = false)
+		glm::ivec2 point_of_rotation = glm::ivec2(0, 0);
+		Sprite2D(const char* path, bool transparency = true)
 		{
 			unsigned int texture_id;
 			glGenTextures(1, &texture_id);
@@ -42,37 +43,34 @@ namespace gloom
 			}
 			stbi_image_free(data);
 
-			float vertices[12] =
+			float vertices[18] =
 			{
-				0.f, 0.f, 0.f,
-				1.f, 0.f, 0.f,
 				1.f, 1.f, 0.f,
-				0.f, 1.f, 0.f
+				1.f, 0.f, 0.f,
+				0.f, 0.f, 0.f,
+
+				0.f, 1.f, 0.f,
+				1.f, 1.f, 0.f,
+				0.f, 0.f, 0.f,
 			};
 
 			float texture_coordinates[12] =
 			{
-				0.f, 0.f,
-				1.f, 0.f,
 				1.f, 1.f,
+				1.f, 0.f,
+				0.f, 0.f,
+
 				0.f, 1.f,
+				1.f, 1.f,
+				0.f, 0.f,
 			};
 
-			unsigned int element_indices[6] =
-			{
-				0, 2, 3,
-				0, 1, 2,
-			};
-
-			unsigned int VAO, VBO, TCBO, EBO;
+			unsigned int VAO, VBO, TCBO;
 			glGenVertexArrays(1, &VAO);
 			glGenBuffers(1, &VBO);
-			glGenBuffers(1, &EBO);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBindVertexArray(VAO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element_indices), &element_indices[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
@@ -85,26 +83,26 @@ namespace gloom
 			this->width = width;
 			this->height = height;
 			this->tid = texture_id;
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 
-		void Draw(ProjMat orthographic_matrix, glm::vec2 xy = glm::vec2(0, 0))
+		void Draw(glm::ivec2 xy = glm::ivec2(0, 0))
 		{
 			glm::mat4 model(1.f);
-			model = glm::translate(model, glm::vec3(xy[0], xy[1], 0.f));
-			if (this->angle != 0)
-			{
-				model = glm::translate(model, glm::vec3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
-				model = glm::rotate(model, glm::radians(this->angle), glm::vec3(0.f, 0.f, 1.f));
-				model = glm::translate(model, glm::vec3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
-			}
-			model = glm::scale(model, glm::vec3(this->width * this->scale[0], this->height * this->scale[1], 0.f));
+			model = glm::translate(model, glm::vec3(xy, 0.f));
+			model = glm::translate(model, glm::vec3(this->point_of_rotation[0], this->point_of_rotation[1], 0.f));
+			model = glm::rotate(model, glm::radians(this->angle), glm::vec3(0.f, 0.f, 1.f));
+			model = glm::translate(model, glm::vec3(-this->point_of_rotation[0], -this->point_of_rotation[1], 0.f));
+			model = glm::scale(model, glm::vec3(this->width * this->scale[0], this->height * this->scale[1], 1.f));
 			glm::mat4 identity_matrix(1.0f);
 			WriteToShader(matrix_projection_location, orthographic_matrix.GetPointer());
 			WriteToShader(matrix_model_location, &model);
 			WriteToShader(matrix_view_location, &identity_matrix);
 			WriteToShader(int_n_lights_location, -1);
 			glBindVertexArray(this->id);
-			glDrawElements(GL_TRIANGLES, 4, GL_FLOAT, 0);
+			glBindTexture(GL_TEXTURE_2D, this->tid);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
 		glm::vec2 GetCenter()

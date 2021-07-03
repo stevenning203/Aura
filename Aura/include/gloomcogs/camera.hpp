@@ -61,52 +61,50 @@ namespace gloom
 	void CameraBegin()
 	{
 		GetKey(window.local_window, GLFW_KEY_LEFT_SHIFT) ? camera_speed_multiplier = 2.5f : camera_speed_multiplier = 1.f;
-		float delta_x = window.half_point.x - mouse_x;
-		float delta_y = window.half_point.y - mouse_y;
-		if (mouse_button_right_down)
+		if (!mouse_button_right_down)
 		{
-			delta_x = 0;
-			delta_y = 0;
+			float delta_x = (int)window.half_point.x - mouse_x;
+			float delta_y = (int)window.half_point.y - mouse_y;
+			delta_x *= camera_sensitivity;
+			delta_y *= camera_sensitivity;
+			yaw += delta_x;
+			pitch += delta_y;
+			if (pitch > 89.9f)
+			{
+				pitch = 89.9f;
+			}
+			if (pitch < -89.9f)
+			{
+				pitch = -89.9f;
+			}
+			glm::vec3 direction;
+			direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
+			direction.y = std::sin(glm::radians(pitch));
+			direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
+			direction = glm::normalize(direction);
+			glm::vec3 right = glm::vec3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
+			if (GetKey(window.local_window, GLFW_KEY_W))
+			{
+				current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * direction * time2);
+			}
+			if (GetKey(window.local_window, GLFW_KEY_S))
+			{
+				current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * direction * time2);
+			}
+			if (GetKey(window.local_window, GLFW_KEY_A))
+			{
+				current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * right * time2);
+			}
+			if (GetKey(window.local_window, GLFW_KEY_D))
+			{
+				current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * right * time2);
+			}
+			if (GetKey(window.local_window, GLFW_KEY_SPACE))
+			{
+				current_camera->SetPos(current_camera->GetPos() + glm::vec3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
+			}
+			current_camera->SetTrg(current_camera->GetPos() + direction);
 		}
-		delta_x *= camera_sensitivity;
-		delta_y *= camera_sensitivity;
-		yaw += delta_x;
-		pitch += delta_y;
-		if (pitch > 89.9f)
-		{
-			pitch = 89.9f;
-		}
-		if (pitch < -89.9f)
-		{
-			pitch = -89.9f;
-		}
-		glm::vec3 direction;
-		direction.x = std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw));
-		direction.y = std::sin(glm::radians(pitch));
-		direction.z = std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw));
-		direction = glm::normalize(direction);
-		glm::vec3 right = glm::vec3(std::sin(glm::radians(yaw) - k_pi / 2.0f), 0, std::cos(glm::radians(yaw) - k_pi / 2.0f));
-		if (GetKey(window.local_window, GLFW_KEY_W))
-		{
-			current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * direction * time2);
-		}
-		if (GetKey(window.local_window, GLFW_KEY_S))
-		{
-			current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * direction * time2);
-		}
-		if (GetKey(window.local_window, GLFW_KEY_A))
-		{
-			current_camera->SetPos(current_camera->GetPos() - camera_speed_multiplier * camera_speed * right * time2);
-		}
-		if (GetKey(window.local_window, GLFW_KEY_D))
-		{
-			current_camera->SetPos(current_camera->GetPos() + camera_speed_multiplier * camera_speed * right * time2);
-		}
-		if (GetKey(window.local_window, GLFW_KEY_SPACE))
-		{
-			current_camera->SetPos(current_camera->GetPos() + glm::vec3(0.f, camera_speed_multiplier * camera_speed * time2, 0.f));
-		}
-		current_camera->SetTrg(current_camera->GetPos() + direction);
 	}
 
 	void CameraEnd()
