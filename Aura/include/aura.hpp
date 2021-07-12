@@ -1,43 +1,13 @@
 #pragma once
 #include "gloom.hpp"
+#include "auracogs/const.hpp"
 
 namespace aura
 {
 	int aura_imgui_static_window = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 	int object_name_increment = 0;
 	int object_loading_increment = 0;
-	enum class AuraParse
-	{
-		k_object, k_light, k_camera, k_script, k_null, k_model, k_seek,
-	};
-	class Script
-	{
-	private:
-		std::string path = "";
-		std::string label = "Unnamed Script";
-		std::string buffer;
-	public:
-		Script(std::string &path)
-		{
-			this->path = path;
-		}
-		void SetLabel(const char* label)
-		{
-			this->label = label;
-		}
-		std::string GetLabel()
-		{
-			return label;
-		}
-		std::string GetPath()
-		{
-			return path;
-		}
-	};
-	class Player
-	{
-		
-	};
+
 	class Object
 	{
 	public:
@@ -110,38 +80,6 @@ namespace aura
 	{
 		active_scene = scene;
 	}
-
-	class SnapShot
-	{
-		Scene* scene_pointer;
-		Scene snapshot;
-	public:
-		SnapShot(Scene* set)
-		{
-			this->scene_pointer = set;
-			this->snapshot = *set;
-		}
-		void Restore();
-		void Set(Scene snapshot);
-	};
-}
-
-typedef std::vector<aura::Object> ObjectArray;
-typedef std::vector<gloom::Light> LightArray;
-typedef std::vector<gloom::Camera> CameraArray;
-typedef aura::Object Object;
-typedef gloom::Light Light;
-typedef gloom::Camera Camera;
-typedef aura::Object* ObjectPtr;
-
-void aura::SnapShot::Set(Scene snapshot)
-{
-	this->snapshot = snapshot;
-}
-
-void aura::SnapShot::Restore()
-{
-	*(this->scene_pointer) = snapshot;
 }
 
 namespace ap

@@ -22,6 +22,9 @@
     <Filter Include="Header Files\Menu Cogs">
       <UniqueIdentifier>{d0ef4e84-37f8-4620-b3aa-090e359956bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Aura Cogs">
+      <UniqueIdentifier>{7cf2d9e9-f8f5-4ce1-9d30-f4efc4d2a143}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -100,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="include\gloomcogs\texture.hpp">
       <Filter>Header Files\Gloom Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\auracogs\init.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\auracogs\const.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

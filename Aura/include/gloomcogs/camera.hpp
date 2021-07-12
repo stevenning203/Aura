@@ -61,7 +61,7 @@ namespace gloom
 	void CameraBegin()
 	{
 		GetKey(window.local_window, GLFW_KEY_LEFT_SHIFT) ? camera_speed_multiplier = 2.5f : camera_speed_multiplier = 1.f;
-		if (!mouse_button_right_down)
+		if (!mouse_button_right_down && mouse_button_right_held)
 		{
 			float delta_x = (int)window.half_point.x - mouse_x;
 			float delta_y = (int)window.half_point.y - mouse_y;

@@ -50,19 +50,33 @@ uniform vec3 camera_position;
 uniform float ambient_strength;
 uniform float specular_strength;
 
+vec3 CalculateAmbient(vec3 strength, vec3 color)
+{
+	return strength * color;
+}
+
+vec3 CalculateDiffuse(vec3 light_direction, vec3 color)
+{
+	float diffuse_constant = max(dot(normal, light_direction), ambient_strength);
+	vec3 diffuse = diffuse_constant * color;
+	return diffuse;
+}
+
+vec3 CalculateSpecular(vec3 view_direction, vec3 reflection_direction, vec3 color)
+{
+	float specularity = pow(max(dot(view_direction, reflection_direction), 0.f), 32);
+	vec3 specular = specular_strength * specularity * color;
+	return specular;
+}
+
 vec3 CalculateLighting(Light light_source, vec3 fragment_position)
 {
 	vec3 view_direction = normalize(camera_position - fragment_position);
-	vec3 ambient = ambient_strength * light_source.color;
 	vec3 normalized = normalize(normal);
 	vec3 light_direction = normalize(light_source.position - fragment_position);
 	vec3 reflection_direction = reflect(-light_direction, normalized);
-	float specularity = pow(max(dot(view_direction, reflection_direction), 0.f), 32);
-	vec3 specular = specular_strength * specularity * light_source.color;
-	float diffuse_constant = max(dot(normal, light_direction), ambient_strength);
-	vec3 diffuse = diffuse_constant * light_source.color;
-	vec3 result = diffuse + specular;
-	float strength = light_source.attenuation[0];
+
+	vec3 result = CalculateDiffuse(light_direction, light_source.color) + CalculateSpecular(view_direction, reflection_direction, light_source.color);
 	return result;
 }
 
