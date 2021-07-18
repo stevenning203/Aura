@@ -110,6 +110,18 @@
     <ClInclude Include="include\auracogs\const.hpp">
       <Filter>Header Files\Aura Cogs</Filter>
     </ClInclude>
+    <ClInclude Include="include\auracogs\parse.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\auracogs\scene.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\auracogs\compiler.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\auracogs\object.hpp">
+      <Filter>Header Files\Aura Cogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.shader">

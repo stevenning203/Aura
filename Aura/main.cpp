@@ -267,7 +267,7 @@ int main()
 						if (ImGui::MenuItem("Save"))
 						{
 							std::string buffer = gloom::editor.GetText();
-							if (!ap::OverwriteString(buffers::script_location, buffer))
+							if (!ap::SaveNewFileContents(buffers::script_location, buffer))
 							{
 								state::save_success_popup_open = true;
 							}

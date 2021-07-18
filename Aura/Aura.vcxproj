@@ -155,8 +155,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\aura.hpp" />
+    <ClInclude Include="include\auracogs\compiler.hpp" />
     <ClInclude Include="include\auracogs\const.hpp" />
     <ClInclude Include="include\auracogs\init.hpp" />
+    <ClInclude Include="include\auracogs\object.hpp" />
+    <ClInclude Include="include\auracogs\parse.hpp" />
+    <ClInclude Include="include\auracogs\scene.hpp" />
     <ClInclude Include="include\definitions.hpp" />
     <ClInclude Include="include\gloom.hpp" />
     <ClInclude Include="include\gloomcogs\2d.hpp" />
